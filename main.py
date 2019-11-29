@@ -1,5 +1,6 @@
 from pdflatex import PDFLaTeX
-import wine-quality.wine_quality
+import amazon.amazon_reviews
+import breast.breast_cancer
 
 
 pdfl = PDFLaTeX.from_texfile("main.tex")
