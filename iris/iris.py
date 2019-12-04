@@ -1,7 +1,12 @@
 # %%
 import pandas as pd
 import seaborn as sns
+import numpy as np
 import matplotlib.pyplot as plt
+from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import make_pipeline
+from sklearn import preprocessing
 from sklearn.model_selection import cross_val_score, cross_val_predict
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
@@ -25,7 +30,7 @@ plt.ylim(b, t)  # update the ylim(bottom, top) values
 plt.show()
 
 # %%
-#Sepal
+# Sepal
 fig = data[data['type'] == 'Iris-setosa'].plot(kind='scatter', x='sep_length', y='sep_width', color='red',
                                                label='Setosa')
 data[data['type'] == 'Iris-versicolor'].plot(kind='scatter', x='sep_length', y='sep_width', color='blue',
@@ -39,7 +44,7 @@ fig = plt.gcf()
 fig.set_size_inches(10, 6)
 plt.show()
 
-#Petal
+# Petal
 fig = data[data['type'] == 'Iris-setosa'].plot(kind='scatter', x='pet_length', y='pet_width', color='red',
                                                label='Setosa')
 data[data['type'] == 'Iris-versicolor'].plot(kind='scatter', x='pet_length', y='pet_width', color='blue',
@@ -53,11 +58,24 @@ fig = plt.gcf()
 fig.set_size_inches(10, 6)
 plt.show()
 
-#%%
+# %% Best K
+knn = GridSearchCV(KNeighborsClassifier(), [{'weights': ['uniform','distance']}, {'n_neighbors': np.arange(1, 100)},
+                                            {'metric': ['euclidean', 'manhattan', 'chebyshev']}], cv=10)
+knn.fit(data[numeric],data[target])
 
-scores = cross_val_score(KNeighborsClassifier(), data[numeric], data[target], cv=10).mean()
+# %% KNN CV NP
 
-scores = cross_val_score(DecisionTreeClassifier(), data[numeric], data[target], cv=10).mean()
+scores = cross_val_score(knn.best_estimator_, data[numeric], data[target], cv=10).mean()
 
-scores = cross_val_score(MLPClassifier(max_iter=1000), data[numeric], data[target], cv=10).mean()
+# %% KNN HO NP
+X_train, X_test, y_train, y_test = train_test_split(data[numeric], data[target], test_size=0.2, random_state=1,
+                                                    stratify=data[target])
 
+# %%
+classifier_pipeline = make_pipeline(preprocessing.MinMaxScaler(), KNeighborsClassifier())
+
+scores = cross_val_score(classifier_pipeline, data[numeric], data[target], cv=10).mean()
+
+# scores = cross_val_score(DecisionTreeClassifier(), data[numeric], data[target], cv=10).mean()
+
+# scores = cross_val_score(MLPClassifier(max_iter=1000), data[numeric], data[target], cv=10).mean()
