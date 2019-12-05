@@ -3,7 +3,7 @@ import pandas as pd
 import seaborn as sns
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV, validation_curve
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import make_pipeline
 from sklearn import preprocessing
@@ -13,6 +13,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.neural_network import MLPClassifier
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from sklearn.metrics import make_scorer
+from scipy.stats import uniform, truncnorm, randint
 
 scoring = {'Accuracy': make_scorer(accuracy_score), 'Precision': make_scorer(precision_score, average='macro'),
            'Recall': make_scorer(recall_score, average='macro'), 'F1': make_scorer(f1_score, average='macro')}
@@ -90,7 +91,8 @@ knn.fit(data[numeric], data[target])
 print('Best Mean Score With Preprocessing', knn.best_score_, 'Model', knn.best_estimator_)
 knn_results = pd.DataFrame(knn.cv_results_)
 
-sns.lineplot('param_kneighborsclassifier__n_neighbors', 'mean_test_score', data=knn_results[knn_results['param_kneighborsclassifier__metric'] == 'euclidean'])
+sns.lineplot('param_kneighborsclassifier__n_neighbors', 'mean_test_score',
+             data=knn_results[knn_results['param_kneighborsclassifier__metric'] == 'euclidean'])
 plt.legend(['Without Preprocessing', 'With Preprocessing'])
 plt.show()
 
@@ -105,33 +107,55 @@ X_train, X_test, y_train, y_test = train_test_split(data[numeric], data[target],
 best_estimator.fit(X_train, y_train)
 print('Best Score Hold Out', best_estimator.score(X_test, y_test))
 
-# %% RF CV NP, Comparing different metrics
-k = np.arange(1, 41)
-metric = ['euclidean', 'chebyshev', 'manhattan']
+# %% RF CV approx params
+param_grid = {
+    # randomly sample numbers from 4 to 204 estimators
+    'n_estimators': randint(100, 130),
+    # normally distributed max_features, with mean .25 stddev 0.1, bounded between 0 and 1
+    'max_features': truncnorm(a=0, b=1, loc=0.25, scale=0.1),
+    # uniform distribution from 0.01 to 0.2 (0.01 + 0.199)
+    'min_samples_split': uniform(0.01, 0.199)
+}
 
-knn = GridSearchCV(KNeighborsClassifier(), dict(n_neighbors=k, metric=metric),
-                   cv=10, n_jobs=-1)
-knn.fit(data[numeric], data[target])
-print('Best Mean Score Without Preprocessing', knn.best_score_, 'Model', knn.best_estimator_)
-best_estimator = knn.best_estimator_
+rf = RandomizedSearchCV(RandomForestClassifier(random_state=random, criterion='gini'), param_grid, cv=10,
+                        n_jobs=-1, random_state=random, n_iter=100)
 
-knn_results = pd.DataFrame(knn.cv_results_)
-sns.lineplot('param_n_neighbors', 'mean_test_score', 'param_metric', style='param_metric', data=knn_results)
+rf.fit(data[numeric], data[target])
+print('Best Mean Score Without Preprocessing', rf.best_score_, 'Model', rf.best_estimator_)
+# %% RF CV NP
+param_grid = {
+    'n_estimators': np.arange(100, 150),
+    'criterion' : ['gini','entropy']
+}
+
+rf = GridSearchCV(RandomForestClassifier(random_state=random, min_samples_split=0.01, max_features=0.33), param_grid,
+                  cv=5,
+                  n_jobs=-1)
+rf.fit(data[numeric], data[target])
+print('Best Mean Score Without Preprocessing', rf.best_score_, 'Model', rf.best_estimator_)
+best_estimator = rf.best_estimator_
+
+rf_results = pd.DataFrame(rf.cv_results_)
+sns.lineplot('param_n_estimators', 'mean_test_score', 'param_criterion', style='param_criterion', data=rf_results)
 plt.show()
 
-# %% KNN CV P, Comparing euclidean metrics P and NP
-sns.lineplot('param_n_neighbors', 'mean_test_score', data=knn_results[knn_results['param_metric'] == 'euclidean'])
+# %% RF CV P
+sns.lineplot('param_n_estimators', 'mean_test_score', data=rf_results[rf_results['param_criterion'] == 'gini'])
 
-classifier_pipeline = make_pipeline(preprocessing.MinMaxScaler(), KNeighborsClassifier())
-knn = GridSearchCV(classifier_pipeline, dict(kneighborsclassifier__n_neighbors=k, kneighborsclassifier__metric=metric),
-                   cv=10, n_jobs=-1)
+classifier_pipeline = make_pipeline(preprocessing.MinMaxScaler(), RandomForestClassifier(random_state=random, min_samples_split=0.01, max_features=0.33))
+param_grid = {
+    'randomforestclassifier__n_estimators': np.arange(100, 150),
+}
 
-knn.fit(data[numeric], data[target])
+rf = GridSearchCV(classifier_pipeline, param_grid,
+                  cv=5,
+                  n_jobs=-1)
+rf.fit(data[numeric], data[target])
 
-print('Best Mean Score With Preprocessing', knn.best_score_, 'Model', knn.best_estimator_)
-knn_results = pd.DataFrame(knn.cv_results_)
+print('Best Mean Score Without Preprocessing', rf.best_score_, 'Model', rf.best_estimator_)
 
-sns.lineplot('param_kneighborsclassifier__n_neighbors', 'mean_test_score', data=knn_results[knn_results['param_kneighborsclassifier__metric'] == 'euclidean'])
+rf_results = pd.DataFrame(rf.cv_results_)
+sns.lineplot('param_randomforestclassifier__n_estimators', 'mean_test_score', data=rf_results)
 plt.legend(['Without Preprocessing', 'With Preprocessing'])
 plt.show()
 
@@ -146,8 +170,5 @@ X_train, X_test, y_train, y_test = train_test_split(data[numeric], data[target],
 best_estimator.fit(X_train, y_train)
 print('Best Score Hold Out', best_estimator.score(X_test, y_test))
 
-
-
-# scores = cross_val_score(DecisionTreeClassifier(), data[numeric], data[target], cv=10).mean()
 
 # scores = cross_val_score(MLPClassifier(max_iter=1000), data[numeric], data[target], cv=10).mean()
