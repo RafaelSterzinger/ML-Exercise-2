@@ -59,22 +59,34 @@ fig.set_size_inches(10, 6)
 plt.show()
 
 # %% Best K
-knn = GridSearchCV(KNeighborsClassifier(), [{'weights': ['uniform','distance']}, {'n_neighbors': np.arange(1, 100)},
-                                            {'metric': ['euclidean', 'manhattan', 'chebyshev']}], cv=10)
-knn.fit(data[numeric],data[target])
+k = np.arange(1, 31)
+metric = ['euclidean', 'chebyshev', 'minkowski','manhattan']
 
-# %% KNN CV NP
+knn = GridSearchCV(KNeighborsClassifier(), dict(n_neighbors=k, metric=metric, weights=['uniform']),
+                   cv=10, n_jobs=-1)
+knn.fit(data[numeric], data[target])
+best_estimator_NP = knn.best_estimator_
 
-scores = cross_val_score(knn.best_estimator_, data[numeric], data[target], cv=10).mean()
+knn_results = pd.DataFrame(knn.cv_results_)
+sns.lineplot(knn_results['param_n_neighbors'],knn_results['mean_test_score'],knn_results['param_metric'])
+
+
+# %% KNN CV P
+classifier_pipeline = make_pipeline(preprocessing.MinMaxScaler(), KNeighborsClassifier())
+knn = GridSearchCV(classifier_pipeline,
+                   [{'kneighborsclassifier__weights': ['uniform', 'distance']},
+                    {'kneighborsclassifier__n_neighbors': np.arange(1, 31)},
+                    {'kneighborsclassifier__metric': ['euclidean', 'chebyshev', 'minkowski']}], cv=10, n_jobs=-1)
+knn.fit(data[numeric], data[target])
+
+best_estimator_P = knn.best_estimator_
+
+# %% Compare Best with P & NP
+
 
 # %% KNN HO NP
 X_train, X_test, y_train, y_test = train_test_split(data[numeric], data[target], test_size=0.2, random_state=1,
                                                     stratify=data[target])
-
-# %%
-classifier_pipeline = make_pipeline(preprocessing.MinMaxScaler(), KNeighborsClassifier())
-
-scores = cross_val_score(classifier_pipeline, data[numeric], data[target], cv=10).mean()
 
 # scores = cross_val_score(DecisionTreeClassifier(), data[numeric], data[target], cv=10).mean()
 
