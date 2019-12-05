@@ -3,7 +3,7 @@ import pandas as pd
 import seaborn as sns
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import GridSearchCV,RandomizedSearchCV
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import make_pipeline
 from sklearn import preprocessing
@@ -15,6 +15,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import chi2
 
+random = 47
 
 train = pd.read_csv('breast/dataset/breast-cancer-diagnostic.shuf.lrn.csv')
 train.columns = train.columns.str.strip()
@@ -36,7 +37,7 @@ mlp = cross_val_score(MLPClassifier(
     max_iter=1000,
     alpha=0.0001,
     activation='relu',
-    solver='adam'), min_max_scaler.transform(X), y, cv=10)
+    solver='adam'), min_max_scaler.transform(X), y, cv=10, n_jobs=-1)
 
 # %% Feature Selection
 X_scale = min_max_scaler.transform(X)

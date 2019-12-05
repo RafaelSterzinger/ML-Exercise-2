@@ -125,7 +125,7 @@ print('Best Mean Score Without Preprocessing', rf.best_score_, 'Model', rf.best_
 # %% RF CV NP
 param_grid = {
     'n_estimators': np.arange(100, 150),
-    'criterion' : ['gini','entropy']
+    'criterion': ['gini', 'entropy']
 }
 
 rf = GridSearchCV(RandomForestClassifier(random_state=random, min_samples_split=0.01, max_features=0.33), param_grid,
@@ -142,7 +142,9 @@ plt.show()
 # %% RF CV P
 sns.lineplot('param_n_estimators', 'mean_test_score', data=rf_results[rf_results['param_criterion'] == 'gini'])
 
-classifier_pipeline = make_pipeline(preprocessing.MinMaxScaler(), RandomForestClassifier(random_state=random, min_samples_split=0.01, max_features=0.33))
+classifier_pipeline = make_pipeline(preprocessing.MinMaxScaler(),
+                                    RandomForestClassifier(random_state=random, min_samples_split=0.01,
+                                                           max_features=0.33))
 param_grid = {
     'randomforestclassifier__n_estimators': np.arange(100, 150),
 }
@@ -159,16 +161,28 @@ sns.lineplot('param_randomforestclassifier__n_estimators', 'mean_test_score', da
 plt.legend(['Without Preprocessing', 'With Preprocessing'])
 plt.show()
 
-# %% KNN Scorer and Time
+# %% RF Scorer and Time
 results = cross_validate(best_estimator, data[numeric], data[target], scoring=scoring, cv=10)
 print('Time', results['fit_time'].mean(), 'Accuracy', results['test_Accuracy'].mean(), 'Precision',
       results['test_Precision'].mean(), 'Recall', results['test_Recall'].mean(), 'F1', results['test_F1'].mean())
 
-# %% KNN HO
+# %% RF HO
 X_train, X_test, y_train, y_test = train_test_split(data[numeric], data[target], test_size=0.2, random_state=random,
                                                     stratify=data[target])
 best_estimator.fit(X_train, y_train)
 print('Best Score Hold Out', best_estimator.score(X_test, y_test))
 
+# %% MLP CV approx params
+param_grid = {
+    'hidden_layer_sizes': [(3, 4, 3), (4, 4, 4), (4, 3, 4)],
+    'activation': ['tanh', 'relu'],
+    'solver': ['sgd', 'adam'],
+    'learning_rate': ['constant', 'adaptive'],
+    'alpha': [0.01,0.001,0.0001]
+}
 
-# scores = cross_val_score(MLPClassifier(max_iter=1000), data[numeric], data[target], cv=10).mean()
+rf = RandomizedSearchCV(MLPClassifier(max_iter=5000, random_state=random), param_grid, cv=3,
+                        n_jobs=-1, random_state=random)
+
+rf.fit(data[numeric], data[target])
+print('Best Mean Score Without Preprocessing', rf.best_score_, 'Model', rf.best_estimator_)
