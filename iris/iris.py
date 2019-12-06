@@ -245,8 +245,18 @@ temp = mlp1_results[mlp1_results['param_mlpclassifier__hidden_layer_sizes'] == (
 temp = temp.rename(columns={'param_mlpclassifier__hidden_layer_sizes': 'param_hidden_layer_sizes',
                             'param_mlpclassifier__activation': 'param_activation'})
 plotdata = plotdata.append(temp)
-plotdata['param_hidden_layer_sizes'] = ['a','a','a','a','b','b','b','b']
+plotdata['param_hidden_layer_sizes'] = ['a', 'a', 'a', 'a', 'b', 'b', 'b', 'b']
 
 sns.barplot('param_activation', 'mean_test_score', 'param_hidden_layer_sizes', data=plotdata)
 plt.legend(['Without Preprocessing (4,3,4)', 'With Preprocessing (3,4,3)'])
 plt.show()
+# %%
+results = cross_validate(best_estimator, data[numeric], data[target], scoring=scoring, cv=10)
+print('Time', results['fit_time'].mean(), 'Accuracy', results['test_Accuracy'].mean(), 'Precision',
+      results['test_Precision'].mean(), 'Recall', results['test_Recall'].mean(), 'F1', results['test_F1'].mean())
+
+# %% KNN HO
+X_train, X_test, y_train, y_test = train_test_split(data[numeric], data[target], test_size=0.2, random_state=random,
+                                                    stratify=data[target])
+best_estimator.fit(X_train, y_train)
+print('Best Score Hold Out', best_estimator.score(X_test, y_test))
