@@ -139,6 +139,20 @@ rf_results = pd.DataFrame(rf.cv_results_)
 sns.lineplot('param_n_estimators', 'mean_test_score', 'param_criterion', style='param_criterion', data=rf_results)
 plt.show()
 
+# %% RF CV NP
+param_grid = {
+    'n_estimators': np.arange(50,150),
+}
+
+rf = GridSearchCV(RandomForestClassifier(random_state=random,max_features=0.5,min_samples_split=0.01), param_grid,
+                  cv=5,
+                  n_jobs=-1)
+rf.fit(data[numeric], data[target])
+print('Best Mean Score Without Preprocessing', rf.best_score_, 'Model', rf.best_estimator_)
+
+rf_results = pd.DataFrame(rf.cv_results_)
+sns.lineplot('param_n_estimators', 'mean_test_score', data=rf_results)
+plt.show()
 # %% RF CV P
 sns.lineplot('param_n_estimators', 'mean_test_score', data=rf_results[rf_results['param_criterion'] == 'gini'])
 
@@ -178,7 +192,7 @@ param_grid = {
     'activation': ['tanh', 'relu'],
     'solver': ['sgd', 'adam'],
     'learning_rate': ['constant', 'adaptive'],
-    'alpha': [0.01,0.001,0.0001]
+    'alpha': [0.01, 0.001, 0.0001]
 }
 
 rf = RandomizedSearchCV(MLPClassifier(max_iter=5000, random_state=random), param_grid, cv=3,
