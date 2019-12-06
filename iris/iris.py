@@ -141,10 +141,10 @@ plt.show()
 
 # %% RF CV NP
 param_grid = {
-    'n_estimators': np.arange(50,150),
+    'n_estimators': np.arange(50, 150),
 }
 
-rf = GridSearchCV(RandomForestClassifier(random_state=random,max_features=0.5,min_samples_split=0.01), param_grid,
+rf = GridSearchCV(RandomForestClassifier(random_state=random, max_features=0.5, min_samples_split=0.01), param_grid,
                   cv=5,
                   n_jobs=-1)
 rf.fit(data[numeric], data[target])
@@ -153,6 +153,7 @@ print('Best Mean Score Without Preprocessing', rf.best_score_, 'Model', rf.best_
 rf_results = pd.DataFrame(rf.cv_results_)
 sns.lineplot('param_n_estimators', 'mean_test_score', data=rf_results)
 plt.show()
+
 # %% RF CV P
 sns.lineplot('param_n_estimators', 'mean_test_score', data=rf_results[rf_results['param_criterion'] == 'gini'])
 
@@ -195,8 +196,56 @@ param_grid = {
     'alpha': [0.01, 0.001, 0.0001]
 }
 
-rf = RandomizedSearchCV(MLPClassifier(max_iter=5000, random_state=random), param_grid, cv=3,
-                        n_jobs=-1, random_state=random)
+mlp = RandomizedSearchCV(MLPClassifier(max_iter=5000, random_state=random), param_grid, cv=3,
+                         n_jobs=-1, random_state=random)
 
-rf.fit(data[numeric], data[target])
-print('Best Mean Score Without Preprocessing', rf.best_score_, 'Model', rf.best_estimator_)
+mlp.fit(data[numeric], data[target])
+print('Best Mean Score Without Preprocessing', mlp.best_score_, 'Model', mlp.best_estimator_)
+
+# %% MLP CV NP
+param_grid = {
+    'hidden_layer_sizes': [(3, 4, 3), (4, 4, 4), (4, 3, 4)],
+    'activation': ['tanh', 'relu', 'logistic', 'identity'],
+}
+
+mlp = GridSearchCV(
+    MLPClassifier(alpha=0.001, solver='sgd', learning_rate='constant', max_iter=4000, random_state=random), param_grid,
+    cv=3,
+    n_jobs=-1)
+
+mlp.fit(data[numeric], data[target])
+best_estimator = mlp.best_estimator_
+
+print('Best Mean Score Without Preprocessing', mlp.best_score_, 'Model', mlp.best_estimator_)
+mlp_results = pd.DataFrame(mlp.cv_results_)
+
+sns.barplot('param_hidden_layer_sizes', 'mean_test_score', 'param_activation', data=mlp_results)
+plt.show()
+
+# %% MLP CV P
+classifier_pipeline = make_pipeline(preprocessing.MinMaxScaler(),
+                                    MLPClassifier(alpha=0.001, solver='sgd', learning_rate='constant', max_iter=4000,
+                                                  random_state=random))
+
+param_grid = {
+    'mlpclassifier__hidden_layer_sizes': [(3, 4, 3), (4, 4, 4), (4, 3, 4)],
+    'mlpclassifier__activation': ['tanh', 'relu', 'logistic', 'identity'],
+}
+
+mlp1 = GridSearchCV(classifier_pipeline, param_grid, cv=3,
+                    n_jobs=-1)
+
+mlp1.fit(data[numeric], data[target])
+
+print('Best Mean Score With Preprocessing', mlp1.best_score_, 'Model', mlp1.best_estimator_)
+mlp1_results = pd.DataFrame(mlp1.cv_results_)
+
+plotdata = mlp_results[mlp_results['param_hidden_layer_sizes'] == (4, 3, 4)]
+temp = mlp1_results[mlp1_results['param_mlpclassifier__hidden_layer_sizes'] == (3, 4, 3)]
+temp = temp.rename(columns={'param_mlpclassifier__hidden_layer_sizes': 'param_hidden_layer_sizes',
+                            'param_mlpclassifier__activation': 'param_activation'})
+plotdata = plotdata.append(temp)
+
+sns.scatterplot('param_activation', 'mean_test_score', 'param_hidden_layer_sizes', data=plotdata)
+plt.legend(['Without Preprocessing (4,3,4)', 'With Preprocessing (3,4,3)'])
+plt.show()
