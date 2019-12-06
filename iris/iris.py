@@ -245,7 +245,8 @@ temp = mlp1_results[mlp1_results['param_mlpclassifier__hidden_layer_sizes'] == (
 temp = temp.rename(columns={'param_mlpclassifier__hidden_layer_sizes': 'param_hidden_layer_sizes',
                             'param_mlpclassifier__activation': 'param_activation'})
 plotdata = plotdata.append(temp)
+plotdata['param_hidden_layer_sizes'] = ['a','a','a','a','b','b','b','b']
 
-sns.scatterplot('param_activation', 'mean_test_score', 'param_hidden_layer_sizes', data=plotdata)
+sns.barplot('param_activation', 'mean_test_score', 'param_hidden_layer_sizes', data=plotdata)
 plt.legend(['Without Preprocessing (4,3,4)', 'With Preprocessing (3,4,3)'])
 plt.show()
