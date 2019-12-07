@@ -139,7 +139,6 @@ rf_results = pd.DataFrame(rf.cv_results_)
 rf_results['param_max_features'] = list(map(lambda x: str(x*100) + ' %',rf_results['param_max_features']))
 sns.lineplot('param_n_estimators', 'mean_test_score','param_max_features',style='param_max_features', data=rf_results)
 plt.show()
-
 # %% RF CV P
 sns.lineplot('param_n_estimators', 'mean_test_score', data=rf_results[rf_results['param_max_features'] == '50.0 %'])
 
