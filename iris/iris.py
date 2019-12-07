@@ -21,7 +21,7 @@ random = 73
 #
 plt.rcParams["patch.force_edgecolor"] = True
 
-data = pd.read_csv('iris/dataset/iris.data', names=['sep_length', 'sep_width', 'pet_length', 'pet_width', 'type'])
+data = pd.read_csv('dataset/iris.data', names=['sep_length', 'sep_width', 'pet_length', 'pet_width', 'type'])
 numeric = ['sep_length', 'sep_width', 'pet_length', 'pet_width']
 target = 'type'
 
@@ -121,14 +121,14 @@ rf = RandomizedSearchCV(RandomForestClassifier(random_state=random, criterion='g
                         n_jobs=-1, random_state=random, n_iter=100)
 
 rf.fit(data[numeric], data[target])
-print('Best Mean Score Without Preprocessing', rf.best_score_, 'Model', rf.best_estimator_)
+
 # %% RF CV NP
 param_grid = {
-    'n_estimators': np.arange(100, 150),
-    'criterion': ['gini', 'entropy']
+    'n_estimators': np.arange(80,140),
+    'max_features': [0.2,0.3,0.4,0.5,0.6],
 }
 
-rf = GridSearchCV(RandomForestClassifier(random_state=random, min_samples_split=0.01, max_features=0.33), param_grid,
+rf = GridSearchCV(RandomForestClassifier(random_state=random, min_samples_split=0.01), param_grid,
                   cv=5,
                   n_jobs=-1)
 rf.fit(data[numeric], data[target])
@@ -136,43 +136,30 @@ print('Best Mean Score Without Preprocessing', rf.best_score_, 'Model', rf.best_
 best_estimator = rf.best_estimator_
 
 rf_results = pd.DataFrame(rf.cv_results_)
-sns.lineplot('param_n_estimators', 'mean_test_score', 'param_criterion', style='param_criterion', data=rf_results)
-plt.show()
-
-# %% RF CV NP
-param_grid = {
-    'n_estimators': np.arange(50, 150),
-}
-
-rf = GridSearchCV(RandomForestClassifier(random_state=random, max_features=0.5, min_samples_split=0.01), param_grid,
-                  cv=5,
-                  n_jobs=-1)
-rf.fit(data[numeric], data[target])
-print('Best Mean Score Without Preprocessing', rf.best_score_, 'Model', rf.best_estimator_)
-
-rf_results = pd.DataFrame(rf.cv_results_)
-sns.lineplot('param_n_estimators', 'mean_test_score', data=rf_results)
+rf_results['param_max_features'] = list(map(lambda x: str(x*100) + ' %',rf_results['param_max_features']))
+sns.lineplot('param_n_estimators', 'mean_test_score','param_max_features',style='param_max_features', data=rf_results)
 plt.show()
 
 # %% RF CV P
-sns.lineplot('param_n_estimators', 'mean_test_score', data=rf_results[rf_results['param_criterion'] == 'gini'])
+sns.lineplot('param_n_estimators', 'mean_test_score', data=rf_results[rf_results['param_max_features'] == '50.0 %'])
 
 classifier_pipeline = make_pipeline(preprocessing.MinMaxScaler(),
-                                    RandomForestClassifier(random_state=random, min_samples_split=0.01,
-                                                           max_features=0.33))
+                                    RandomForestClassifier(random_state=random, min_samples_split=0.01))
+
 param_grid = {
-    'randomforestclassifier__n_estimators': np.arange(100, 150),
+    'randomforestclassifier__n_estimators': np.arange(80,140),
+    'randomforestclassifier__max_features': [0.2,0.3,0.4,0.5,0.6],
 }
 
 rf = GridSearchCV(classifier_pipeline, param_grid,
                   cv=5,
                   n_jobs=-1)
 rf.fit(data[numeric], data[target])
-
 print('Best Mean Score Without Preprocessing', rf.best_score_, 'Model', rf.best_estimator_)
 
 rf_results = pd.DataFrame(rf.cv_results_)
-sns.lineplot('param_randomforestclassifier__n_estimators', 'mean_test_score', data=rf_results)
+rf_results['param_randomforestclassifier__max_features'] = list(map(lambda x: str(x*100) + ' %',rf_results['param_randomforestclassifier__max_features']))
+sns.lineplot('param_randomforestclassifier__n_estimators', 'mean_test_score', data=rf_results[rf_results['param_randomforestclassifier__max_features'] == '50.0 %'])
 plt.legend(['Without Preprocessing', 'With Preprocessing'])
 plt.show()
 
