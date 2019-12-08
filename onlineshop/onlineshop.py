@@ -7,9 +7,11 @@ from sklearn import preprocessing
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.feature_selection import SelectKBest as SelectKBest
 from sklearn.feature_selection import chi2
-from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV
+from sklearn.model_selection import train_test_split, cross_val_score, GridSearchCV, RandomizedSearchCV
 from sklearn.neighbors import KNeighborsClassifier
-from sklearn.pipeline import make_pipeline
+from sklearn.pipeline import make_pipeline, Pipeline
+from sklearn.neural_network import MLPClassifier
+
 
 from onlineshop_utils import *
 
@@ -37,6 +39,13 @@ categoric_encoded = [] # contains Month_Feb, ..., Month_Dec, OperatingSystems_1,
 top3_attributes = ['ProductRelated_Duration', 'PageValues','Administrative_Duration']
 top7_attributes = top3_attributes + ['Informational_Duration', 'ProductRelated', 'Administrative', 'Informational']
 top12_attributes = top7_attributes +  ['BounceRates', 'ExitRates', 'PageValues', 'Month_Nov', 'TrafficType' ]          # evaluated from correlation matrix
+
+
+scoring = ['accuracy', 'recall']
+#scoring = 'recall'
+refit = 'recall'
+
+random_state = 42
 
 #%% Data Analasys
 
@@ -103,31 +112,156 @@ plt.show()
 #%% do not remove outliers, but instead add abnormality
 # scores since the outliers seem to be the ones buying things
 # increases accuracy by ~3%
+print()
+#%% 1.1 k nearest neighbours                                                                                            Target Attribute comparison
 
-#%% 1.1 k nearest neighbours Parameter iterieren
-k = np.arange(1, 31)
-metric = ['euclidean', 'chebyshev','manhattan']
+knn_param_grid = {
+    'n_neighbors' : np.arange(1, 31),
+    'metric' : ['manhattan'], #['euclidean', 'chebyshev','manhattan'],
+    'weights' : ['uniform'],
+}
+
+knn_top12_results, knn_top12 = attribute_comparison(KNeighborsClassifier(),data_encoded,top12_attributes, target, knn_param_grid, scoring, refit, 'Top 12')
+knn_top7_results, trash = attribute_comparison(KNeighborsClassifier(),data_encoded,top7_attributes, target, knn_param_grid, scoring, refit, 'Top 7')
+knn_top3_results, trash = attribute_comparison(KNeighborsClassifier(),data_encoded,top3_attributes, target, knn_param_grid, scoring, refit, 'Top 3')
+
+print('Best Mean Score Without Preprocessing', knn_top12.best_score_, 'Model', knn_top12.best_estimator_)
+
+knn_results = knn_top12_results.append(knn_top7_results).append(knn_top3_results)
+#sns.lineplot('param_n_neighbors', 'mean_test_recall', 'param_metric', style='param_metric',data=knn_results)
+sns.lineplot('param_n_neighbors', 'mean_test_recall', 'Attributes', style='Attributes',data=knn_results)
+#sns.lineplot('param_n_neighbors', 'mean_test_accuracy', 'Attributes', style='Attributes',data=knn_results)
+plt.show()
+
+
+#%% 1.1 k nearest neighbors With                                                                                        Min Max Scaling comparison -> User Preprocessing and Top 12 Attributes
+
+sns.lineplot('param_n_neighbors', 'mean_test_recall',data=knn_top12_results)                                            # no preprocessing
+
 scoring = ['accuracy', 'recall']
 #scoring = 'recall'
 refit = 'recall'
 
-knn_param_grid = {
-    'n_neighbors' : np.arange(1, 31),
-    'metric' : ['euclidean', 'chebyshev','manhattan'],
-    'weights' : ['uniform'],
+knn_param_grid_pipe = {
+    'kneighborsclassifier__n_neighbors' : np.arange(1, 31),
+    'kneighborsclassifier__metric' : ['manhattan'], #['euclidean', 'chebyshev','manhattan'],
+    'kneighborsclassifier__weights' : ['uniform']
+    #'select__k': [3, 7, 12],
 }
+pipe = make_pipeline(preprocessing.MinMaxScaler(), KNeighborsClassifier())
+'''    Pipeline([
+    #('select', SelectKBest()),
+    ('scaler', preprocessing.MinMaxScaler()),
+    ('clf', KNeighborsClassifier())])'''
 
-knn = GridSearchCV(KNeighborsClassifier(), param_grid=knn_param_grid,
-                   cv=10, n_jobs=-1, scoring=scoring, refit=refit)
-knn.fit(data_encoded[top12_attributes], data_encoded[target])
-best_estimator_NP = knn.best_estimator_
+search = GridSearchCV(pipe, knn_param_grid_pipe, cv=5, n_jobs=-1, scoring=scoring, refit=refit)
+search.fit(data_encoded[top12_attributes], data_encoded[target])
 
 
-knn_results = pd.DataFrame(knn.cv_results_)
-sns.lineplot('param_n_neighbors', 'mean_test_recall', 'param_metric', style='param_metric',data=knn_results)
+print('Best Mean Score With Preprocessing', search.best_score_, 'Model', search.best_estimator_)
+knn_best_estimator = search
+
+search_results = pd.DataFrame(search.cv_results_)#.append(knn_top7.cv_results_).append(knn_top3.cv_results_)
+sns.lineplot('param_kneighborsclassifier__n_neighbors', 'mean_test_recall',data=search_results)
+plt.legend(['Without Preprocessing', 'With Preprocessing'])
 plt.show()
 
-#%%
+#%% 1.2 random Forest                                                                                                   max depth & n_estimators comparison
+
+scoring = ['accuracy', 'recall']
+#scoring = 'recall'
+refit = 'recall'
+
+rfc=RandomForestClassifier(random_state=random_state)
+rfc_param_grid = {
+    'n_estimators': [10, 15, 20],#[100, 150, 200],
+    'max_features': ['auto'],#, 'sqrt', 'log2'],
+    'max_depth' : np.arange(5, 15),
+    'criterion' :['gini']#, 'entropy']
+}
+
+rfc_top12_results, rfc_top12 = attribute_comparison(rfc,data_encoded,top12_attributes, target, rfc_param_grid, scoring, refit, 'Top 12', cv=3)
+#rfc_top7_results, trash = attribute_comparison(rfc,data_encoded,top7_attributes, target, rfc_param_grid, scoring, refit, 'Top 7')
+#rfc_top3_results, trash = attribute_comparison(rfc,data_encoded,top3_attributes, target, rfc_param_grid, scoring, refit, 'Top 3')
+
+print('Best Mean Score Without Preprocessing', rfc_top12.best_score_, 'Model', rfc_top12.best_estimator_)
+
+rfc_results = rfc_top12_results#.append(rfc_top7_results).append(rfc_top3_results)
+#TODO style based on n_estimators
+    #for n_estim in rfc_param_grid['n_estimators']:
+    #    rfc_results.loc[rfc_results['param_n_estimators'] == n_estim, 'Estimators'] = str(n_estim)
+    #rfc_results['Estimators'] =  str(rfc_results['param_n_estimators'][2])
+sns.lineplot('param_max_depth', 'mean_test_recall',# 'Estimators', style='Estimators',
+             data=rfc_results)
+
+plt.show()
+
+
+#%% 1.2 random forest With                                                                                              Min Max Scaling comparison -> Pre Processing makes it worse
+
+sns.lineplot('param_max_depth', 'mean_test_recall', data=rfc_results[rfc_results['param_n_estimators']==15])                                            # no preprocessing
+
+rfc_param_grid_pipe = {
+    'randomforestclassifier__n_estimators': [15],#[100, 150, 200],
+    'randomforestclassifier__max_features': ['auto'],#, 'sqrt', 'log2'],
+    'randomforestclassifier__max_depth' : np.arange(5, 15),
+    'randomforestclassifier__criterion' :['gini']#, 'entropy']
+}
+
+pipe = make_pipeline(preprocessing.MinMaxScaler(), RandomForestClassifier(random_state=random_state))
+
+search = GridSearchCV(pipe, rfc_param_grid_pipe, cv=5, n_jobs=-1, scoring=scoring, refit=refit)
+search.fit(data_encoded[top12_attributes], data_encoded[target])
+
+print('Best Mean Score With Preprocessing', search.best_score_, 'Model', search.best_estimator_)
+rfc_best_estimator = search
+
+search_results = pd.DataFrame(search.cv_results_)#.append(knn_top7.cv_results_).append(knn_top3.cv_results_)
+sns.lineplot('param_randomforestclassifier__max_depth', 'mean_test_recall',data=search_results)
+plt.legend(['Without Preprocessing', 'With Preprocessing'])
+plt.show()
+
+#
+
+#%% 1.3 MLP CV approx params
+mlp_param_grid = {
+    'hidden_layer_sizes': [(3, 4, 3), (7, 5, 3), (3, 3, 7)],
+    'activation': ['tanh', 'relu'],
+    'solver': ['sgd', 'adam'],
+    'learning_rate': ['constant', 'adaptive'],
+    'alpha': [0.01, 0.001, 0.0001]
+}
+
+mlp = RandomizedSearchCV(MLPClassifier(max_iter=2000, random_state=random_state), mlp_param_grid, cv=3,
+                         n_jobs=-1, random_state=random_state, scoring=scoring, refit= refit)
+
+mlp.fit(data_encoded[top12_attributes], data_encoded[target])
+print('Best Mean Score Without Preprocessing', mlp.best_score_, 'Model', mlp.best_estimator_)
+
+#%% 1.3 MLP CV NP
+mlp_param_grid = {
+    'hidden_layer_sizes': [(3, 4, 3), (7, 5, 3), (3, 3, 7)],
+    'activation': ['tanh', 'relu', 'logistic', 'identity'],
+}
+
+mlp = GridSearchCV(
+    MLPClassifier(alpha=0.001, solver='sgd', learning_rate='constant', max_iter=4000, random_state=random_state), mlp_param_grid,
+    cv=3,
+    n_jobs=-1,
+    scoring=scoring,
+    refit=refit)
+
+mlp.fit(data_encoded[top12_attributes], data_encoded[target])
+best_estimator = mlp.best_estimator_
+
+print('Best Mean Score Without Preprocessing', mlp.best_score_, 'Model', mlp.best_estimator_)
+mlp_results = pd.DataFrame(mlp.cv_results_)
+
+sns.barplot('param_hidden_layer_sizes', 'mean_test_score', 'param_activation', data=mlp_results)
+plt.show()
+
+
+#%% First Tries                                                                                                         DEPRECATED
 model = RandomForestClassifier(bootstrap=True,
                                                     class_weight=None,
                                                     criterion='gini',
@@ -163,7 +297,7 @@ scores12 = cross_val_score(classifier_pipeline, data_encoded[top12_attributes], 
 print(scores12)
 
 #%% Grid Search RandomForest
-rfc=RandomForestClassifier(random_state=42)
+rfc=RandomForestClassifier(random_state=random_state)
 param_grid = {
     'n_estimators': [250, 300, 350],
     'max_features': ['auto', 'sqrt', 'log2'],
