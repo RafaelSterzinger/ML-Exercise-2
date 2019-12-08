@@ -3,7 +3,7 @@ import pandas as pd
 import seaborn as sns
 import numpy as np
 import matplotlib.pyplot as plt
-from sklearn.model_selection import GridSearchCV,RandomizedSearchCV
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
 from sklearn.model_selection import train_test_split
 from sklearn.pipeline import make_pipeline
 from sklearn import preprocessing
@@ -31,6 +31,10 @@ min_max_scaler.fit(X)
 # %% Count-Plot of Target
 sns.countplot(y, label="Count")  # M = 212, B = 357
 plt.show()
+
+# %% find attributes
+
+
 
 # %%
 mlp = cross_val_score(MLPClassifier(
