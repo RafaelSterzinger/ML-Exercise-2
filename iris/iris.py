@@ -21,7 +21,7 @@ random = 73
 #
 plt.rcParams["patch.force_edgecolor"] = True
 
-data = pd.read_csv('dataset/iris.data', names=['sep_length', 'sep_width', 'pet_length', 'pet_width', 'type'])
+data = pd.read_csv('iris/dataset/iris.data', names=['sep_length', 'sep_width', 'pet_length', 'pet_width', 'type'])
 numeric = ['sep_length', 'sep_width', 'pet_length', 'pet_width']
 target = 'type'
 
