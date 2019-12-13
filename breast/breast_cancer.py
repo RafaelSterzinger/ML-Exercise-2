@@ -30,7 +30,7 @@ random = 47
 scoring = {'Accuracy': make_scorer(accuracy_score), 'Precision': make_scorer(precision_score, average='macro'),
            'Recall': make_scorer(recall_score, average='macro'), 'F1': make_scorer(f1_score, average='macro')}
 
-train = pd.read_csv('breast/dataset/breast-cancer-diagnostic.shuf.lrn.csv')
+train = pd.read_csv('dataset/breast-cancer-diagnostic.shuf.lrn.csv')
 train.columns = train.columns.str.strip()
 
 # %% Pre-Processing
@@ -43,6 +43,7 @@ X_min_max = min_max_scaler.transform(X)
 
 # %% Count-Plot of Target
 sns.countplot(y, label="Count")  # M = 212, B = 357
+plt.savefig("plots/countplot.png")
 plt.show()
 
 # %% violinplot minmax transformed
@@ -57,6 +58,7 @@ data = pd.melt(data,
 plt.figure(figsize=(10, 10))
 sns.violinplot(x="features", y="value", hue="class", data=data, split=True, inner="quart")
 plt.xticks(rotation=40)
+plt.savefig("plots/violinplot.png")
 plt.show()
 
 # %% violineplot normal transformed
@@ -70,22 +72,26 @@ data = pd.melt(data,
 plt.figure(figsize=(10, 10))
 sns.violinplot(x="features", y="value", hue="class", data=data, split=True, inner="quart")
 plt.xticks(rotation=90)
+plt.savefig("plots/violineplot_normaltransformed.png")
 plt.show()
 
 # %% Boxplot
 plt.figure(figsize=(10, 10))
 sns.boxplot(x="features", y="value", hue="class", data=data)
 plt.xticks(rotation=90)
+plt.savefig("plots/boxplot.png")
 plt.show()
 
 # %%
 sns.jointplot(X['concavityWorst'], X['concavePointsWorst'], kind="regg", color="#ce1414")
+plt.savefig("plots/corr_comparision.png")
 plt.show()
 
 # %%
 plt.figure(figsize=(10, 10))
 sns.swarmplot(x="features", y="value", hue="class", data=data)
 plt.xticks(rotation=90)
+plt.savefig("plots/swarmplot.png")
 plt.show()
 
 # %%
@@ -115,6 +121,7 @@ knn_results = pd.DataFrame(knn.cv_results_)
 sns.lineplot('param_n_neighbors', 'mean_test_score',
              data=knn_results[knn_results['param_metric'] == 'manhattan'])
 plt.legend(['Without Preprocessing', 'With Preprocessing'])
+plt.savefig("plots/knn_feature_comparision.png")
 plt.show()
 
 # %% Random Forest feature selection
@@ -130,6 +137,7 @@ plt.figure()
 plt.xlabel("Number of features selected")
 plt.ylabel("Cross validation score of number of selected features")
 plt.plot(range(1, len(rf_ecv.grid_scores_) + 1), rf_ecv.grid_scores_)
+plt.savefig("plots/rf_feature_selection.png")
 plt.show()
 
 #%% KNN NP
@@ -157,6 +165,7 @@ print('Best Mean Score with Preprocessing', knn.best_score_, 'Model',
 
 knn_results = pd.DataFrame(knn.cv_results_)
 sns.lineplot('param_c__n_neighbors', 'mean_test_score', 'param_c__metric', style='param_c__metric', data=knn_results)
+plt.savefig("plots/knn_p_comparision.png")
 plt.show()
 
 # %% KNN Scorer and Time
@@ -202,6 +211,7 @@ best_estimator = rf.best_estimator_
 rf_results = pd.DataFrame(rf.cv_results_)
 rf_results['param_max_features'] = list(map(lambda x: str(x*100) + ' %',rf_results['param_max_features']))
 sns.lineplot('param_n_estimators', 'mean_test_score','param_max_features',style='param_max_features', data=rf_results)
+plt.savefig("plots/rf_np_comparision.png")
 plt.show()
 
 # %% RF CV P
@@ -281,6 +291,7 @@ print('Best Mean Score With Preprocessing', mlp1.best_score_, 'Model', mlp1.best
 mlp1_results = pd.DataFrame(mlp1.cv_results_)
 
 sns.barplot('param_mlpclassifier__hidden_layer_sizes', 'mean_test_score', 'param_mlpclassifier__activation', data=mlp1_results)
+plt.savefig("plots/mlp_p_comparision.png")
 plt.show()
 
 plotdata = mlp_results[mlp_results['param_hidden_layer_sizes'] == (15, 15, 15)]
@@ -292,6 +303,7 @@ plotdata['param_hidden_layer_sizes'] = ['a', 'a', 'a', 'a', 'b', 'b', 'b', 'b']
 
 sns.barplot('param_activation', 'mean_test_score', 'param_hidden_layer_sizes', data=plotdata)
 plt.legend(['Without Preprocessing (15,15,15)', 'With Preprocessing (30,15,30)'])
+plt.savefig("plots/mlp_np_p_comparision.png")
 plt.show()
 
 # %% MLP Scorer and Time
@@ -306,21 +318,21 @@ best_estimator.fit(X_train, y_train)
 print('Best Score Hold Out', best_estimator.score(X_test, y_test))
 
 # %% Kaggle Score 0.97647
-X_scale = min_max_scaler.fit_transform(X)
-test = pd.read_csv('breast/dataset/breast-cancer-diagnostic.shuf.tes.csv').drop('ID', axis=1)
-test.columns = test.columns.str.strip()
-sol = pd.read_csv('breast/dataset/breast-cancer-diagnostic.shuf.sol.ex.csv')
+#X_scale = min_max_scaler.fit_transform(X)
+#test = pd.read_csv('breast/dataset/breast-cancer-diagnostic.shuf.tes.csv').drop('ID', axis=1)
+#test.columns = test.columns.str.strip()
+#sol = pd.read_csv('breast/dataset/breast-cancer-diagnostic.shuf.sol.ex.csv')
 
-mlp = MLPClassifier(
-    hidden_layer_sizes=(30,15,30),
-    max_iter=3000,
-    alpha=0.001,
-    activation='relu',
-    solver='adam',
-)
+#mlp = MLPClassifier(
+#    hidden_layer_sizes=(30,15,30),
+#    max_iter=3000,
+#    alpha=0.001,
+#    activation='relu',
+#    solver='adam',
+#)
 
-mlp.fit(X_scale, y)
-prediction = mlp.predict(min_max_scaler.transform(test))
+#mlp.fit(X_scale, y)
+#prediction = mlp.predict(min_max_scaler.transform(test))
 
-sol['class'] = prediction
-sol.to_csv("breast/dataset/sol.csv", index=False)
+#sol['class'] = prediction
+#sol.to_csv("breast/dataset/sol.csv", index=False)
