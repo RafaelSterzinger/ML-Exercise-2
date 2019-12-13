@@ -2,6 +2,7 @@ import pandas as pd
 import seaborn as sns
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.stats import randint, truncnorm, uniform
 
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.neural_network import MLPClassifier
@@ -13,12 +14,15 @@ from sklearn import preprocessing
 from sklearn.decomposition import PCA
 
 from sklearn.preprocessing import MinMaxScaler
-
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, make_scorer
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import chi2
 from sklearn.feature_selection import RFECV
 from sklearn.pipeline import Pipeline
-from sklearn.model_selection import GridSearchCV, RandomizedSearchCV, validation_curve
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV, validation_curve, cross_validate
+
+scoring = {'Accuracy': make_scorer(accuracy_score), 'Precision': make_scorer(precision_score, average='macro'),
+           'Recall': make_scorer(recall_score, average='macro'), 'F1': make_scorer(f1_score, average='macro')}
 
 random = 123
 plt.rcParams["patch.force_edgecolor"] = True
@@ -83,41 +87,73 @@ k = range(1, 60)
 metric = ['euclidean', 'chebyshev', 'manhattan']
 
 grid_search_dict = dict(c__n_neighbors=k, c__metric=metric)
-knn_p = GridSearchCV(pipeline, grid_search_dict, cv=5, n_jobs=-1)
-knn_p.fit(X, y)
-best_estimator = knn_p.best_estimator_
-print('Best Mean Score without Preprocessing', knn_p.best_score_, 'Model',
-      best_estimator)
-knn_results_np = pd.DataFrame(knn_p.cv_results_)
+knn_np = GridSearchCV(pipeline, grid_search_dict, cv=5, n_jobs=-1)
+knn_np.fit(X, y)
+print('Best Mean Score without Preprocessing', knn_np.best_score_, 'Model', knn_np.best_estimator_np_)
+knn_results_np = pd.DataFrame(knn_np.cv_results_)
 
 # %% knn cv p, k and metrics
-classifier_pipeline = make_pipeline(preprocessing.MinMaxScaler(), KNeighborsClassifier(weights='distance'))
-knn = GridSearchCV(classifier_pipeline, dict(kneighborsclassifier__n_neighbors=k, kneighborsclassifier__metric=metric),
-                   cv=5, n_jobs=-1)
+pipeline = Pipeline([('s', preprocessing.MinMaxScaler()),
+                     ('c', KNeighborsClassifier(weights='distance'))])
 
-knn.fit(X[best_rfecv_features], y)
-
-print('Best Mean Score With Preprocessing', knn.best_score_, 'Model', knn.best_estimator_)
-knn_results_p = pd.DataFrame(knn.cv_results_)
+knn_p = GridSearchCV(pipeline, grid_search_dict, cv=5, n_jobs=-1)
+knn_p.fit(X[best_rfecv_features], y)
+print('Best Mean Score with Preprocessing', knn_p.best_score_, 'Model', knn_p.best_estimator_)
+knn_results_p = pd.DataFrame(knn_p.cv_results_)
 
 # %% plot results
-sns.lineplot('param_c__n_neighbors', 'mean_test_score', 'param_c__metric', style='param_c__metric',
-             data=knn_results_np['param_metric'] == 'manhattan')
-sns.lineplot('param_kneighborsclassifier__n_neighbors', 'mean_test_score',
-             data=knn_results_p[knn_results_p['param_kneighborsclassifier__metric'] == 'manhattan'])
+sns.lineplot('param_c__n_neighbors', 'mean_test_score', 'param_c__metric',
+             data=knn_results_np[knn_results_np['param_c__metric'] == 'manhattan'])
+sns.lineplot('param_c__n_neighbors', 'mean_test_score',
+             data=knn_results_p[knn_results_p['param_c__metric'] == 'manhattan'])
 plt.legend(['Without Preprocessing', 'With Preprocessing'])
 plt.show()
 
+# %%
+X_best_knn = X[best_rfecv_features]
+
 # %% KNN Scorer and Time
-results = cross_validate(best_estimator, data[numeric], data[target], scoring=scoring, cv=10)
+results = cross_validate(knn_p, X_best_knn, y, scoring=scoring, cv=10)
 print('Time', results['fit_time'].mean(), 'Accuracy', results['test_Accuracy'].mean(), 'Precision',
       results['test_Precision'].mean(), 'Recall', results['test_Recall'].mean(), 'F1', results['test_F1'].mean())
 
 # %% KNN HO
-X_train, X_test, y_train, y_test = train_test_split(data[numeric], data[target], test_size=0.2, random_state=random,
-                                                    stratify=data[target])
-best_estimator.fit(X_train, y_train)
-print('Best Score Hold Out', best_estimator.score(X_test, y_test))
+X_train, X_test, y_train, y_test = train_test_split(X_best_knn, y, test_size=0.2, random_state=random,
+                                                    stratify=y)
+knn_np.best_estimator_.fit(X_train, y_train)
+print('Best Score Hold Out', knn_np.best_estimator_.score(X_test, y_test))
+
+# %% RF CV approx params
+param_grid = {
+    # randomly sample numbers from 4 to 204 estimators
+    'n_estimators': randint(11, 20),
+    # normally distributed max_features, with mean .25 stddev 0.1, bounded between 0 and 1
+    'max_features': truncnorm(a=0, b=1, loc=0.25, scale=0.1),
+    # uniform distribution from 0.01 to 0.2 (0.01 + 0.199)
+    # 'min_samples_split': uniform(0.01, 0.199)
+}
+
+rf = RandomizedSearchCV(RandomForestClassifier(random_state=random, criterion='gini'), param_grid, cv=5,
+                        n_jobs=-1, random_state=random, n_iter=100, verbose=True)
+
+rf.fit(X[best_rfecv_features], y)
+
+# %%
+# %% RF CV NP
+pipeline = Pipeline([('c', RandomForestClassifier(random_state=random, min_samples_split=0.01))])
+n_estimators = np.arange(80, 140)
+max_features = [0.2, 0.3, 0.4, 0.5, 0.6]
+grid_dict = dict(param_c__n_estimator=n_estimators, param_c__max_features=max_features)
+
+rf_p = GridSearchCV(pipeline, param_grid, cv=5, n_jobs=-1)
+rf_p.fit(X[best_rfecv_features], y)
+print('Best Mean Score Without Preprocessing', rf.best_score_, 'Model', rf.best_estimator_)
+
+rf_p_results = pd.DataFrame(rf_p.cv_results_)
+rf_p_results['param_max_features'] = list(map(lambda x: str(x * 100) + ' %', rf_p_results['param_max_features']))
+sns.lineplot('param_n_estimators', 'mean_test_score', 'param_max_features', style='param_max_features',
+             data=rf_p_results)
+plt.show()
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -258,6 +294,24 @@ mlp = MLPClassifier(
 )
 mlp.fit(X_train, y)
 prediction = mlp.predict(X_test)
+
+sample_solution['Class'] = prediction
+sample_solution.to_csv("amazon/dataset/sol.csv", index=False)
+
+# %%
+from sklearn.svm import SVC
+
+test = pd.read_csv(dataset_path + "amazon_review_ID.shuf.tes.csv")
+sample_solution = pd.read_csv(dataset_path + "amazon_review_ID.shuf.sol.ex.csv")
+
+scaler = MinMaxScaler()
+X_train = scaler.fit_transform(X)
+X_test = scaler.transform(test.drop('ID', axis=1))
+
+svc = SVC()
+
+svc.fit(X_train, y)
+prediction = svc.predict(X_test)
 
 sample_solution['Class'] = prediction
 sample_solution.to_csv("amazon/dataset/sol.csv", index=False)
