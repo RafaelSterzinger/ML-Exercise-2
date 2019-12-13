@@ -52,7 +52,7 @@ data = pd.melt(data,
                value_name='value')
 plt.figure(figsize=(10, 10))
 sns.violinplot(x="features", y="value", hue="class", data=data, split=True, inner="quart")
-plt.xticks(rotation=90)
+plt.xticks(rotation=40)
 plt.show()
 
 # %% violineplot normal transformed
@@ -136,11 +136,9 @@ plt.legend(['Without Preprocessing', 'With Preprocessing'])
 plt.show()
 
 # %% Random Forest feature selection
-
-
 # The "accuracy" scoring is proportional to the number of correct classifications
 clf_rf_4 = RandomForestClassifier()
-rf_ecv = RFECV(estimator=clf_rf_4, step=1, cv=5, scoring='accuracy')  # 5-fold cross-validation
+rf_ecv = RFECV(estimator=clf_rf_4, step=1, cv=10, scoring='accuracy', n_jobs=-1)  # 5-fold cross-validation
 rf_ecv = rf_ecv.fit(X, y)
 
 print('Optimal number of features :', rf_ecv.n_features_)
@@ -158,7 +156,9 @@ pipeline = Pipeline([('scalar', preprocessing.MinMaxScaler()),
                      ('c', KNeighborsClassifier(weights='distance'))])
 k = range(1, 20)
 metric = ['euclidean', 'chebyshev', 'manhattan']
+
 grid_search_dict = dict(c__n_neighbors=k, c__metric=metric)
+
 knn_p = GridSearchCV(pipeline, grid_search_dict, cv=10, n_jobs=-1)
 knn_p.fit(X_best_features, y)
 best_estimator = knn_p.best_estimator_
@@ -167,7 +167,7 @@ print('Best Mean Score with Preprocessing', knn_p.best_score_, 'Model',
 
 knn_results = pd.DataFrame(knn_p.cv_results_)
 sns.lineplot('param_c__n_neighbors', 'mean_test_score', 'param_c__metric',
-             style='param_c__metric', data=knn_results)
+              style='param_c__metric', data=knn_results)
 plt.show()
 
 # %% mlp
@@ -191,7 +191,7 @@ mlp.fit(X_scale, y)
 best_params = mlp.best_params_
 
 # %% Kaggle Score 0.97647
-X_scale = min_max_scaler.transform(X)
+X_scale = min_max_scaler.fit_transform(X)
 test = pd.read_csv('breast/dataset/breast-cancer-diagnostic.shuf.tes.csv').drop('ID', axis=1)
 test.columns = test.columns.str.strip()
 sol = pd.read_csv('breast/dataset/breast-cancer-diagnostic.shuf.sol.ex.csv')
@@ -207,3 +207,5 @@ prediction = mlp.predict(min_max_scaler.transform(test))
 
 sol['class'] = prediction
 sol.to_csv("breast/dataset/sol.csv", index=False)
+
+# %%

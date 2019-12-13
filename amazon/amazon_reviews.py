@@ -35,10 +35,6 @@ chart = sns.countplot(y, label="Count")
 chart.set_xticklabels(chart.get_xticklabels(), rotation=45, horizontalalignment='right')
 plt.show()
 
-# %% 14 features found with weka
-best_first_features = ["V289", "V448", "V821", "V1011", "V1295", "V1379", "V1397", "V6629", "V6924", "V6939", "V7468",
-                       "V8058", "V8059", "V9200"]
-
 # %% Select K Best
 selector = SelectKBest(chi2, k=1000)
 X_best_k = selector.fit_transform(X, y)
@@ -50,11 +46,11 @@ X_transformed_min_max = scaler_min_max.transform(X)
 
 # %% Random Forest feature selection
 # The "accuracy" scoring is proportional to the number of correct classifications
-step_size = 100
+step_size = 1000
 clf_rf_4 = RandomForestClassifier()
 rf_ecv = RFECV(estimator=clf_rf_4, step=step_size, min_features_to_select=10, cv=3, scoring='accuracy',
                verbose=True, n_jobs=-1)  # 5-fold cross-validation
-rf_ecv = rf_ecv.fit(X_transformed_min_max, y)
+rf_ecv = rf_ecv.fit(X, y)
 
 print('Optimal number of features :', rf_ecv.n_features_)
 print('Best features :', X.columns[rf_ecv.support_])
@@ -78,7 +74,6 @@ def plot_heatmap(df):
     t -= 0.5  # Subtract 0.5 from the top
     plt.ylim(b, t)  # update the ylim(bottom, top) values
     plt.show()
-
 
 # %% knn with pca as preprocessing and all features
 pipeline = Pipeline([('scalar', preprocessing.MinMaxScaler()),
@@ -171,7 +166,6 @@ print('Best Mean Score with Preprocessing', mlp_p.best_score_, 'Model',
 
 # %% mlp with best
 pipeline = Pipeline([('scalar', preprocessing.MinMaxScaler()),
-                     # ('pca', PCA(0.99)),
                      ('c', MLPClassifier())])
 activation = ['relu', 'tanh', 'logistic', 'sigmoid', 'softmax']
 grid_search_dict = dict(
