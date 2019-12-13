@@ -140,6 +140,7 @@ dmypy.json
 *.cb2
 .*.lb
 *.png
+*.pdf
 
 ## Intermediate documents:
 *.dvi
