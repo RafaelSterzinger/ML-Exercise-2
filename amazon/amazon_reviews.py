@@ -13,7 +13,7 @@ from sklearn.pipeline import make_pipeline
 from sklearn import preprocessing
 from sklearn.decomposition import PCA
 
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, make_scorer
 from sklearn.feature_selection import SelectKBest
 from sklearn.feature_selection import chi2
@@ -28,7 +28,7 @@ random = 123
 plt.rcParams["patch.force_edgecolor"] = True
 
 # %% load datasets
-dataset_path = "amazon/dataset/"
+dataset_path = "dataset/"
 train = pd.read_csv(dataset_path + "amazon_review_ID.shuf.lrn.csv")
 
 X = train.drop(['Class', 'ID'], axis=1)
@@ -38,6 +38,7 @@ y = train['Class']
 plt.figure(figsize=(10, 6))
 chart = sns.countplot(y, label="Count")
 chart.set_xticklabels(chart.get_xticklabels(), rotation=45, horizontalalignment='right')
+plt.savefig('plots/target.png')
 plt.show()
 
 # %% Select K Best
@@ -66,8 +67,8 @@ plt.figure()
 plt.xlabel("Number of features selected")
 plt.ylabel("Cross validation score of number of selected features")
 plt.plot(range(1, len(rf_ecv.grid_scores_) * step_size, step_size), rf_ecv.grid_scores_)
+plt.savefig('plots/rf_feature_selection.png')
 plt.show()
-
 
 # %% fixed Heatplot of found attributes
 def plot_heatmap(df):
@@ -89,7 +90,7 @@ metric = ['euclidean', 'chebyshev', 'manhattan']
 grid_search_dict = dict(c__n_neighbors=k, c__metric=metric)
 knn_np = GridSearchCV(pipeline, grid_search_dict, cv=5, n_jobs=-1)
 knn_np.fit(X, y)
-print('Best Mean Score without Preprocessing', knn_np.best_score_, 'Model', knn_np.best_estimator_np_)
+print('Best Mean Score without Preprocessing', knn_np.best_score_, 'Model', knn_np.best_estimator_)
 knn_results_np = pd.DataFrame(knn_np.cv_results_)
 
 # %% knn cv p, k and metrics
@@ -107,6 +108,7 @@ sns.lineplot('param_c__n_neighbors', 'mean_test_score', 'param_c__metric',
 sns.lineplot('param_c__n_neighbors', 'mean_test_score',
              data=knn_results_p[knn_results_p['param_c__metric'] == 'manhattan'])
 plt.legend(['Without Preprocessing', 'With Preprocessing'])
+plt.savefig('plots/knn_comparison.png')
 plt.show()
 
 # %%
@@ -138,21 +140,66 @@ rf = RandomizedSearchCV(RandomForestClassifier(random_state=random, criterion='g
 
 rf.fit(X[best_rfecv_features], y)
 
-# %%
 # %% RF CV NP
 pipeline = Pipeline([('c', RandomForestClassifier(random_state=random, min_samples_split=0.01))])
-n_estimators = np.arange(80, 140)
-max_features = [0.2, 0.3, 0.4, 0.5, 0.6]
-grid_dict = dict(param_c__n_estimator=n_estimators, param_c__max_features=max_features)
+n_estimators = np.arange(30, 35)
+max_features = [0.2, 0.3, 0.4, 0.5, 0.6, 0.7]
+param_grid = dict(c__n_estimators=n_estimators, c__max_features=max_features)
+
+rf_np = GridSearchCV(pipeline, param_grid, cv=5, n_jobs=-1)
+rf_np.fit(X, y)
+print('Best Mean Score without Preprocessing', rf_np.best_score_, 'Model', rf.best_estimator_)
+rf_np_results = pd.DataFrame(rf_np.cv_results_)
+rf_np_results['param_c__max_features'] = list(
+    map(lambda x: str(x * 100) + ' %', rf_np_results['param_c__max_features']))
+
+sns.lineplot('param_c__n_estimators', 'mean_test_score', 'param_c__max_features', style='param_c__max_features',
+             data=rf_np_results)
+plt.savefig('plots/rf_comparison.png')
+plt.show()
+
+# %% RF CV P
+pipeline = Pipeline([('s', StandardScaler()),
+                     ('c', RandomForestClassifier(random_state=random, min_samples_split=0.01))])
+param_grid = dict(c__n_estimators=n_estimators, c__max_features=max_features)
 
 rf_p = GridSearchCV(pipeline, param_grid, cv=5, n_jobs=-1)
 rf_p.fit(X[best_rfecv_features], y)
-print('Best Mean Score Without Preprocessing', rf.best_score_, 'Model', rf.best_estimator_)
+print('Best Mean Score with Preprocessing', rf_p.best_score_, 'Model', rf.best_estimator_)
 
-rf_p_results = pd.DataFrame(rf_p.cv_results_)
-rf_p_results['param_max_features'] = list(map(lambda x: str(x * 100) + ' %', rf_p_results['param_max_features']))
-sns.lineplot('param_n_estimators', 'mean_test_score', 'param_max_features', style='param_max_features',
-             data=rf_p_results)
+# %% RF Scorer and Time
+results = cross_validate(rf_np, X[best_rfecv_features], y, scoring=scoring, cv=10, n_jobs=-1)
+print('Time', results['fit_time'].mean(), 'Accuracy', results['test_Accuracy'].mean(), 'Precision',
+      results['test_Precision'].mean(), 'Recall', results['test_Recall'].mean(), 'F1', results['test_F1'].mean())
+
+# %% RF HO
+X_train, X_test, y_train, y_test = train_test_split(X[best_rfecv_features], y, test_size=0.2, random_state=random)
+rf_np.best_estimator_.fit(X_train, y_train)
+print('Best Score Hold Out', rf_np.best_estimator_.score(X_test, y_test))
+
+# %% MLP
+pipeline = Pipeline([('select', SelectKBest(chi2, k=2000)),
+                     ('s', MinMaxScaler()),
+                     ('c', MLPClassifier(random_state=random, max_iter=1000))])
+
+hidden_layer_sizes = [(100,)]
+activation = ['tanh', 'relu', 'logistic', 'identity']
+param_grid = dict(c__hidden_layer_sizes=hidden_layer_sizes, c__activation=activation)
+
+mlp = GridSearchCV(
+    pipeline,
+    param_grid,
+    cv=3,
+    n_jobs=-1)
+
+mlp.fit(X, y)
+best_estimator = mlp.best_estimator_
+
+print('Best Mean Score Without Preprocessing', mlp.best_score_, 'Model', mlp.best_estimator_)
+mlp_results = pd.DataFrame(mlp.cv_results_)
+
+sns.barplot('param_c__hidden_layer_sizes', 'mean_test_score', 'param_c__activation', data=mlp_results)
+plt.savefig('plots/mlp_comparison.png')
 plt.show()
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
