@@ -6,7 +6,17 @@
 
 \begin{document}
 
-The Iris dataset was chosen, because of its low dimensionality and its small number of samples, which fulfils the requirement to be contrary to the other selected set. Furthermore, it is a very well known dataset, which allows comparison and therefore gives feedback on the performance our results. In general, preprocessing is not mandatory, however since the dataset contains only rational data types, it would be interesting two compare the scaled data versus the non-scaled one. A selection of features is not necessary, since it only consists of four dimensions and already performs quite well.
+\newcommand{\image}[3]{
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=0.75\textwidth]{#1}
+\captionof{figure}{#2}
+\label{fig:#3}
+\end{center}
+\end{figure}
+}
+
+The Iris dataset was chosen, because of its low dimensionality and its small number of samples, which fulfils the requirement to be contrary to the other selected set and is a good beginning example to classification. Furthermore, it is a very well known dataset, which allows comparison and therefore gives feedback on the performance our results. In general, preprocessing is not mandatory, however since the dataset contains only rational data types, it would be interesting two compare the scaled data versus the non-scaled one. A selection of features is not necessary, since it only consists of four dimensions and already performs quite well.
 
 \subsection{Characteristics}
 
@@ -18,21 +28,34 @@ The Iris dataset was chosen, because of its low dimensionality and its small num
 \item 150 samples
 \end{itemize}
 
-\includegraphics[width=\textwidth]{plots/heatmap.png}
-\captionof{figure}{Heatmap of the different attrbutes of the Iris dataset}
+Comparing the correlation of the different attributes, \textit{petal width}, \textit{petal length} and \textit{sepal length} are all strong correlated. Only \textit{sepal width} is an exception, which is less and negatively correlated to the others, see Figure \ref{fig:heat}. Thus, sepal width could be a good attribute to distinct between the different classes.
+
+\image{plots/heatmap.png}{Heatmap of the different attrbutes of the Iris dataset}{heat}
 
 \subsection{Characteristics of Classifiers}
+A comparison of the different classifiers in sepal width versus sepal length or petal width versus petal length shows, that the class Setosa is the most distinguishable. Concerning the classes Versicolor and Virginica, they are rather unique when comparing them in petal width versus petal length, whereas in sepal width versus sepal length they are not separable. All three classes are uniformly distributed with 50 instances each.
 
-\includegraphics[width=\textwidth]{plots/sepal.png}
+\image
+
 \includegraphics[width=\textwidth]{plots/petal.png}
+\captionof{figure}{Comparision of Petal Length versus Petal Width}
 
 \subsection{K Nearest Neighbours Classifier}
+For K Nearest Neighbours a \textit{GridSearchCV} was carried out, where especially different \textit{k's} and metrics have been altered. Before that, a more general search has shown, that uniform weights perform better on the Iris dataset. Without preprocessing the best estimator is an Euclidean classifier, where \textit{k} equals 13. Comparing the different metrics, Chebyshev peaks earlier than euclidean, whereas Euclidean generally performed the best and Manhattan the worst. 
 
-\includegraphics[width=\textwidth]{plots/knn_np_comparision.png}
+\begin{figure}[ht]
+\begin{center}
+\includegraphics[width=0.75\textwidth]{plots/knn_np_comparision.png}
 \captionof{figure}{K Nearest Neighbours with different distance metrics}
+\end{center}
+\end{figure}
 
+asdfasf
+
+\begin{figure}[ht]
 \includegraphics[width=\textwidth]{plots/knn_np_p_comparision.png}
 \captionof{figure}{Preprocessing versus No-Preprocessing}
+\end{figure}
 
 \subsection{Random Forest Classifier}
 \includegraphics[width=\textwidth]{plots/rf_np_comparision.png}
@@ -44,7 +67,7 @@ The Iris dataset was chosen, because of its low dimensionality and its small num
 
 \subsection{Conclusion}
 
-\begin{table}[]
+\begin{table}[h]
 \begin{center}
 \begin{tabular}{|l|l|l|}
 \hline
@@ -57,7 +80,7 @@ MLPClassifier          & 0.9666        & 0.9866           \\ \hline
 \end{center}
 \end{table}
 
-\begin{table}[]
+\begin{table}[h]
 \begin{center}
 \begin{tabular}{|l|l|l|}
 \hline
@@ -69,7 +92,8 @@ MLPClassifier          & 1.0000  & 0.9866           \\ \hline
 \caption{Comparision of accuracy of holdout versus cross-validation}
 \end{center}
 \end{table}
-\begin{table}[]
+
+\begin{table}[h]
 \begin{center}
 \begin{tabular}{|l|l|l|l|l|l|}
 \hline

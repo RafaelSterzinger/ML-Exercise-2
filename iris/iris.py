@@ -18,8 +18,6 @@ from scipy.stats import uniform, truncnorm, randint
 scoring = {'Accuracy': make_scorer(accuracy_score), 'Precision': make_scorer(precision_score, average='macro'),
            'Recall': make_scorer(recall_score, average='macro'), 'F1': make_scorer(f1_score, average='macro')}
 random = 73
-#
-plt.rcParams["patch.force_edgecolor"] = True
 
 data = pd.read_csv('dataset/iris.data', names=['sep_length', 'sep_width', 'pet_length', 'pet_width', 'type'])
 numeric = ['sep_length', 'sep_width', 'pet_length', 'pet_width']
