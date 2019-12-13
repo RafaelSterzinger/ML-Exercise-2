@@ -21,7 +21,7 @@ random = 73
 #
 plt.rcParams["patch.force_edgecolor"] = True
 
-data = pd.read_csv('iris/dataset/iris.data', names=['sep_length', 'sep_width', 'pet_length', 'pet_width', 'type'])
+data = pd.read_csv('dataset/iris.data', names=['sep_length', 'sep_width', 'pet_length', 'pet_width', 'type'])
 numeric = ['sep_length', 'sep_width', 'pet_length', 'pet_width']
 target = 'type'
 
@@ -34,6 +34,7 @@ b, t = plt.ylim()  # discover the values for bottom and top
 b += 0.5  # Add 0.5 to the bottom
 t -= 0.5  # Subtract 0.5 from the top
 plt.ylim(b, t)  # update the ylim(bottom, top) values
+plt.savefig("plots/heatmap.png")
 plt.show()
 
 # %% Visualizing Data
@@ -49,6 +50,7 @@ fig.set_ylabel("Sepal Width")
 fig.set_title("Sepal: Length vs. Width")
 fig = plt.gcf()
 fig.set_size_inches(10, 6)
+plt.savefig("plots/sepal.png")
 plt.show()
 
 # Petal
@@ -63,6 +65,7 @@ fig.set_ylabel("Petal Width")
 fig.set_title("Petal: Length vs. Width")
 fig = plt.gcf()
 fig.set_size_inches(10, 6)
+plt.savefig("plots/petal.png")
 plt.show()
 
 # %% KNN CV NP, Comparing different metrics
@@ -77,6 +80,7 @@ best_estimator = knn.best_estimator_
 
 knn_results = pd.DataFrame(knn.cv_results_)
 sns.lineplot('param_n_neighbors', 'mean_test_score', 'param_metric', style='param_metric', data=knn_results)
+plt.savefig("plots/knn_np_comparision.png")
 plt.show()
 
 # %% KNN CV P, Comparing euclidean metrics P and NP
@@ -94,6 +98,7 @@ knn_results = pd.DataFrame(knn.cv_results_)
 sns.lineplot('param_kneighborsclassifier__n_neighbors', 'mean_test_score',
              data=knn_results[knn_results['param_kneighborsclassifier__metric'] == 'euclidean'])
 plt.legend(['Without Preprocessing', 'With Preprocessing'])
+plt.savefig("plots/knn_np_p_comparision.png")
 plt.show()
 
 # %% KNN Scorer and Time
@@ -138,6 +143,7 @@ best_estimator = rf.best_estimator_
 rf_results = pd.DataFrame(rf.cv_results_)
 rf_results['param_max_features'] = list(map(lambda x: str(x*100) + ' %',rf_results['param_max_features']))
 sns.lineplot('param_n_estimators', 'mean_test_score','param_max_features',style='param_max_features', data=rf_results)
+plt.savefig("plots/rf_np_comparision.png")
 plt.show()
 # %% RF CV P
 sns.lineplot('param_n_estimators', 'mean_test_score', data=rf_results[rf_results['param_max_features'] == '50.0 %'])
@@ -154,12 +160,13 @@ rf = GridSearchCV(classifier_pipeline, param_grid,
                   cv=5,
                   n_jobs=-1)
 rf.fit(data[numeric], data[target])
-print('Best Mean Score Without Preprocessing', rf.best_score_, 'Model', rf.best_estimator_)
+print('Best Mean Score With Preprocessing', rf.best_score_, 'Model', rf.best_estimator_)
 
 rf_results = pd.DataFrame(rf.cv_results_)
 rf_results['param_randomforestclassifier__max_features'] = list(map(lambda x: str(x*100) + ' %',rf_results['param_randomforestclassifier__max_features']))
 sns.lineplot('param_randomforestclassifier__n_estimators', 'mean_test_score', data=rf_results[rf_results['param_randomforestclassifier__max_features'] == '50.0 %'])
 plt.legend(['Without Preprocessing', 'With Preprocessing'])
+plt.savefig("plots/rf_np_p_comparision.png")
 plt.show()
 
 # %% RF Scorer and Time
@@ -206,6 +213,7 @@ print('Best Mean Score Without Preprocessing', mlp.best_score_, 'Model', mlp.bes
 mlp_results = pd.DataFrame(mlp.cv_results_)
 
 sns.barplot('param_hidden_layer_sizes', 'mean_test_score', 'param_activation', data=mlp_results)
+plt.savefig("plots/mlp_np_comparision.png")
 plt.show()
 
 # %% MLP CV P
@@ -235,13 +243,15 @@ plotdata['param_hidden_layer_sizes'] = ['a', 'a', 'a', 'a', 'b', 'b', 'b', 'b']
 
 sns.barplot('param_activation', 'mean_test_score', 'param_hidden_layer_sizes', data=plotdata)
 plt.legend(['Without Preprocessing (4,3,4)', 'With Preprocessing (3,4,3)'])
+plt.savefig("plots/mlp_np_p_comparision.png")
 plt.show()
-# %%
+
+# %% MLP Scorer and Time
 results = cross_validate(best_estimator, data[numeric], data[target], scoring=scoring, cv=10)
 print('Time', results['fit_time'].mean(), 'Accuracy', results['test_Accuracy'].mean(), 'Precision',
       results['test_Precision'].mean(), 'Recall', results['test_Recall'].mean(), 'F1', results['test_F1'].mean())
 
-# %% KNN HO
+# %% MLP HO
 X_train, X_test, y_train, y_test = train_test_split(data[numeric], data[target], test_size=0.2, random_state=random,
                                                     stratify=data[target])
 best_estimator.fit(X_train, y_train)
