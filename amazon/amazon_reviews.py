@@ -20,6 +20,7 @@ from sklearn.feature_selection import RFECV
 from sklearn.pipeline import Pipeline
 from sklearn.model_selection import GridSearchCV, RandomizedSearchCV, validation_curve
 
+random = 123
 plt.rcParams["patch.force_edgecolor"] = True
 
 # %% load datasets
@@ -47,15 +48,14 @@ X_transformed_min_max = scaler_min_max.transform(X)
 # %% Random Forest feature selection
 # The "accuracy" scoring is proportional to the number of correct classifications
 step_size = 1000
-clf_rf_4 = RandomForestClassifier()
+clf_rf_4 = RandomForestClassifier(random_state=random)
 rf_ecv = RFECV(estimator=clf_rf_4, step=step_size, min_features_to_select=10, cv=3, scoring='accuracy',
                verbose=True, n_jobs=-1)  # 5-fold cross-validation
 rf_ecv = rf_ecv.fit(X, y)
 
 print('Optimal number of features :', rf_ecv.n_features_)
 print('Best features :', X.columns[rf_ecv.support_])
-
-X_best_rfecv = rf_ecv.transform(X)
+best_rfecv_features = X.columns[rf_ecv.support_]
 
 # Plot number of features VS. cross-validation scores
 plt.figure()
@@ -75,26 +75,52 @@ def plot_heatmap(df):
     plt.ylim(b, t)  # update the ylim(bottom, top) values
     plt.show()
 
-# %% knn with pca as preprocessing and all features
-pipeline = Pipeline([('scalar', preprocessing.MinMaxScaler()),
-                     ('pca', PCA()),
-                     ('c', KNeighborsClassifier(weights='distance'))])
+
+# %% knn cv np, k and metrics
+pipeline = Pipeline([('c', KNeighborsClassifier(weights='distance'))])
 
 k = range(1, 60)
 metric = ['euclidean', 'chebyshev', 'manhattan']
-pca = [0.95]
 
-grid_search_dict = dict(c__n_neighbors=k, c__metric=metric, pca__n_components=pca)
-knn_p = GridSearchCV(pipeline, grid_search_dict, cv=10, n_jobs=-1)
-knn_p.fit(X_best_k, y)
+grid_search_dict = dict(c__n_neighbors=k, c__metric=metric)
+knn_p = GridSearchCV(pipeline, grid_search_dict, cv=5, n_jobs=-1)
+knn_p.fit(X, y)
 best_estimator = knn_p.best_estimator_
-print('Best Mean Score with Preprocessing', knn_p.best_score_, 'Model',
+print('Best Mean Score without Preprocessing', knn_p.best_score_, 'Model',
       best_estimator)
-knn_results = pd.DataFrame(knn_p.cv_results_)
-sns.lineplot('param_c__n_neighbors', 'mean_test_score', 'param_c__metric',
-             style='param_c__metric', data=knn_results)
+knn_results_np = pd.DataFrame(knn_p.cv_results_)
 
+# %% knn cv p, k and metrics
+classifier_pipeline = make_pipeline(preprocessing.MinMaxScaler(), KNeighborsClassifier(weights='distance'))
+knn = GridSearchCV(classifier_pipeline, dict(kneighborsclassifier__n_neighbors=k, kneighborsclassifier__metric=metric),
+                   cv=5, n_jobs=-1)
+
+knn.fit(X[best_rfecv_features], y)
+
+print('Best Mean Score With Preprocessing', knn.best_score_, 'Model', knn.best_estimator_)
+knn_results_p = pd.DataFrame(knn.cv_results_)
+
+# %% plot results
+sns.lineplot('param_c__n_neighbors', 'mean_test_score', 'param_c__metric', style='param_c__metric',
+             data=knn_results_np['param_metric'] == 'manhattan')
+sns.lineplot('param_kneighborsclassifier__n_neighbors', 'mean_test_score',
+             data=knn_results_p[knn_results_p['param_kneighborsclassifier__metric'] == 'manhattan'])
+plt.legend(['Without Preprocessing', 'With Preprocessing'])
 plt.show()
+
+# %% KNN Scorer and Time
+results = cross_validate(best_estimator, data[numeric], data[target], scoring=scoring, cv=10)
+print('Time', results['fit_time'].mean(), 'Accuracy', results['test_Accuracy'].mean(), 'Precision',
+      results['test_Precision'].mean(), 'Recall', results['test_Recall'].mean(), 'F1', results['test_F1'].mean())
+
+# %% KNN HO
+X_train, X_test, y_train, y_test = train_test_split(data[numeric], data[target], test_size=0.2, random_state=random,
+                                                    stratify=data[target])
+best_estimator.fit(X_train, y_train)
+print('Best Score Hold Out', best_estimator.score(X_test, y_test))
+
+# %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 
 # %% knn without pre processing comparison of features
 k = range(1, 60)
@@ -102,7 +128,7 @@ metric = ['euclidean', 'chebyshev', 'manhattan']
 weights = ['uniform', 'distance']
 grid_search_dict = dict(n_neighbors=k, metric=metric, weights=weights)
 knn_np = GridSearchCV(KNeighborsClassifier(), grid_search_dict,
-                      cv=10, n_jobs=-1)
+                      cv=5, n_jobs=-1)
 knn_np.fit(X_best_k, y)
 
 best_estimator = knn_np.best_estimator_
