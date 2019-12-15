@@ -18,15 +18,15 @@
 
 \begin{document}
 
-The Iris dataset was chosen, because of its low number of dimensions and its small number of samples, which fulfils the requirement to be contrary to the other selected set and is a good beginning example for classification. Furthermore, it is a very well known dataset, which allows comparison and therefore gives feedback on the accuracy of our results. In general, preprocessing is not mandatory, however since the dataset contains only rational data types, it would be interesting two compare the scaled data versus the non-scaled one. A selection of features is not necessary, since it only consists of four dimensions and already performs quite well. For the following analysis of the different classification techniques in regards with the Iris dataset, mainly \textit{GridSearchCV}, with cross validation from 3 to 10, depending on the complexity and therefore on the runtime, was used. 
+The Iris dataset was chosen, because of its low number of dimensions and its small number of samples, which fulfils the requirement to be contrary to the other selected set and is a good beginning example for classification. The aim of this dataset is to predict the species of a flower, depending on different measurement of sepal and petal. Furthermore, it is a very well known dataset, which allows comparison and therefore gives feedback on the accuracy of our results. In general, preprocessing is not mandatory, however since the dataset contains only rational data types, it would be interesting two compare the scaled data versus the non-scaled one. A selection of features is not necessary, since it only consists of four dimensions and already performs quite well. For the following analysis of the different classification techniques in regards with the Iris dataset, mainly \textit{GridSearchCV}, with cross validation from 3 to 10, depending on the complexity and therefore on the runtime, was used. 
 
 \subsection{Characteristics}
 
 \begin{itemize}
 \item No missing values
 \item 3 different target classes
-\item Rational quantities, e.g. sepal length, sepal width, petal length, petal width
-\item 5 attributes
+\item Rational quantities (sepal length, sepal width, petal length, petal width)
+\item 4 attributes
 \item 150 samples
 \end{itemize}
 
@@ -73,6 +73,8 @@ The second parameter which was varied, were the activation functions. There \tex
 
 \subsection{Conclusion}
 
+Taking previously made findings about scaling in KNN into account, one can summarise that on the Iris dataset no preprocessed data performs slightly better than preprocessed.
+
 \begin{table}[h]
 \begin{center}
 \begin{tabular}{|l|l|l|}
@@ -86,6 +88,8 @@ MLPClassifier          & 0.9666        & 0.9866           \\ \hline
 \end{center}
 \end{table}
 
+A comparison between holdout and cross validation gives mixed results and it is very questionable that one would get an accuracy of 100\% when testing. However, holdout was never completely different to cross validation and therefore can be useful for a quick approximation of the performance of a model, where cross validation would take much longer.
+
 \begin{table}[h]
 \begin{center}
 \begin{tabular}{|l|l|l|}
@@ -98,6 +102,8 @@ MLPClassifier          & 1.0000  & 0.9866           \\ \hline
 \caption{Comparison of accuracy of holdout versus cross-validation}
 \end{center}
 \end{table}
+
+Concerning the performance metrics, accuracy is the most useful measurement for the Iris dateset set, because the target value is perfectly balanced, with 50 entries per class. Archiving a score of over 98\%, thus results in the conclusion, that the model is able to correctly classify all three categories. Therefore the MLPClassifer performed the best, but not only in accuracy, but in general. The runtime of each model is the average time it took to fit the test data for 10 folds. It is no surprise that fitting the test data to the most time for the Classifier
 
 \begin{table}[h]
 \begin{center}
