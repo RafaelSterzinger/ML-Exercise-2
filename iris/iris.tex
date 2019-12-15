@@ -18,7 +18,7 @@
 
 \begin{document}
 
-The Iris dataset was chosen, because of its low number of dimensions and its small number of samples, which fulfils the requirement to be contrary to the other selected set and is a good beginning example to classification. Furthermore, it is a very well known dataset, which allows comparison and therefore gives feedback on the performance our results. In general, preprocessing is not mandatory, however since the dataset contains only rational data types, it would be interesting two compare the scaled data versus the non-scaled one. A selection of features is not necessary, since it only consists of four dimensions and already performs quite well. For the following analysis of the different classification techniques in regards with the Iris dataset, mainly \textit{GridSearchCV}, with cross validation from 3 to 10, depending on the complexity and therefore on the runtime, was used. 
+The Iris dataset was chosen, because of its low number of dimensions and its small number of samples, which fulfils the requirement to be contrary to the other selected set and is a good beginning example for classification. Furthermore, it is a very well known dataset, which allows comparison and therefore gives feedback on the accuracy of our results. In general, preprocessing is not mandatory, however since the dataset contains only rational data types, it would be interesting two compare the scaled data versus the non-scaled one. A selection of features is not necessary, since it only consists of four dimensions and already performs quite well. For the following analysis of the different classification techniques in regards with the Iris dataset, mainly \textit{GridSearchCV}, with cross validation from 3 to 10, depending on the complexity and therefore on the runtime, was used. 
 
 \subsection{Characteristics}
 
@@ -35,7 +35,7 @@ Comparing the correlation of the different attributes, \textit{petal width}, \te
 \image{plots/heatmap.png}{Heatmap of the different attributes of the Iris dataset}{\label{fig:heat}}
 
 \subsection{Characteristics of Target Value}
-A comparison of the different classifiers in sepal width versus sepal length or petal width versus petal length shows, that the class Setosa is the most distinguishable (Figure \ref{petal}). Concerning the classes Versicolor and Virginica, they are rather unique when comparing them in petal width versus petal length, whereas in sepal width versus sepal length they are not separable. All three classes are uniformly distributed with 50 instances each.
+A comparison of the different classifiers in sepal width versus sepal length or petal width versus petal length shows, that the class Setosa is the most distinguishable (Figure \ref{petal}). Concerning the classes Versicolor and Virginica, they are rather unique when comparing them in petal width versus petal length, whereas in sepal width versus sepal length they are not separable. All three classes have the same occurrence, with 50 instances each.
 
 \image{plots/petal.png}{Comparison of Petal Length versus Petal Width}{\label{petal}}
 
@@ -55,9 +55,21 @@ The amount of different max features was only changed in the more specific \text
 \image{plots/rf_np_comparision.png}{Comparison of the \textit{max\_features} attribute for different \textit{n\_estimators}}{\label{rf}}
 
 \subsection{Multi-Layer Perceptron Classifier}
-\image{plots/mlp_np_comparision.png}{Comparison of different models and activation functions}{\label{mlp}}
-
 For the Multi-Layer Perceptron a strategy, similarly to the random forest one,  was chosen, where a general search was done by the \textit{RandomizedSearchCV}, followed by a more specific one with the \textit{GridSearchCV}.
+
+For the randomized search, different solver, learning rates and starting alphas have been altered, to fixate some parameters, when conducting a more granular search, to keep the run time shorter. Concerning the solver, stochastic gradient descent came out on top instead of \textit{adam}, which is a different stochastic gradient-based optimizer. Altering the learning rates 0.01, 0.001, 0.0001, 0.001 performed the best, with constant learning rate.
+
+Afterwards only different models and activation function were tried for scaled and non scaled data. The size and the amount of the different layers were randomly picked, where the sizes were chosen to be between the amount of input neurons and the amount of output neurons, which resulted in three different models:
+
+\begin{itemize}
+\item (3,4,3)
+\item (4,4,4)
+\item (4,3,4)
+\end{itemize}
+
+The second parameter which was varied, were the activation functions. There \textit{tanh, relu, logistic, itdenty} had been altered. When evaluating the different \textit{GridSeachCV} results, the non preprocessed model performed slightly better, with an accuracy of 0.9866, which was the overall best performance of all different techniques. Interestingly, both searches for scaled and non scaled data, chose the tangent hyperbolic as the activation function, but concerning the model, preprocessed performed best with the (3,4,3) model and non preprocessed with the (4,3,4) one. In both cases the Logistic or Sigmoid activation function performed significantly worse, which could be due to the fact of vanishing gradients (Figure \ref{mlp}).
+
+\image{plots/mlp_np_comparision.png}{Comparison of different models and activation functions}{\label{mlp}}
 
 \subsection{Conclusion}
 
