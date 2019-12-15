@@ -70,6 +70,7 @@ plt.plot(range(1, len(rf_ecv.grid_scores_) * step_size, step_size), rf_ecv.grid_
 plt.savefig('plots/rf_feature_selection.png')
 plt.show()
 
+
 # %% fixed Heatplot of found attributes
 def plot_heatmap(df):
     correlation_matrix = df.corr().abs()
@@ -81,13 +82,13 @@ def plot_heatmap(df):
     plt.show()
 
 
-# %% knn cv np, k and metrics
-pipeline = Pipeline([('c', KNeighborsClassifier(weights='distance'))])
-
+# %%
 k = range(1, 60)
 metric = ['euclidean', 'chebyshev', 'manhattan']
-
 grid_search_dict = dict(c__n_neighbors=k, c__metric=metric)
+
+# %% knn cv np, k and metrics
+pipeline = Pipeline([('c', KNeighborsClassifier(weights='distance'))])
 knn_np = GridSearchCV(pipeline, grid_search_dict, cv=5, n_jobs=-1)
 knn_np.fit(X, y)
 print('Best Mean Score without Preprocessing', knn_np.best_score_, 'Model', knn_np.best_estimator_)
@@ -101,6 +102,9 @@ knn_p = GridSearchCV(pipeline, grid_search_dict, cv=5, n_jobs=-1)
 knn_p.fit(X[best_rfecv_features], y)
 print('Best Mean Score with Preprocessing', knn_p.best_score_, 'Model', knn_p.best_estimator_)
 knn_results_p = pd.DataFrame(knn_p.cv_results_)
+sns.lineplot('param_c__n_neighbors', 'mean_test_score', 'param_c__metric', data=knn_results_p)
+plt.savefig('plots/knn_metrics.png')
+plt.show()
 
 # %% plot results
 sns.lineplot('param_c__n_neighbors', 'mean_test_score', 'param_c__metric',
@@ -205,160 +209,160 @@ plt.show()
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-# %% knn without pre processing comparison of features
-k = range(1, 60)
-metric = ['euclidean', 'chebyshev', 'manhattan']
-weights = ['uniform', 'distance']
-grid_search_dict = dict(n_neighbors=k, metric=metric, weights=weights)
-knn_np = GridSearchCV(KNeighborsClassifier(), grid_search_dict,
-                      cv=5, n_jobs=-1)
-knn_np.fit(X_best_k, y)
-
-best_estimator = knn_np.best_estimator_
-print('Best Mean Score without Preprocessing', knn_np.best_score_, 'Model',
-      best_estimator)
-knn_results = pd.DataFrame(knn_np.cv_results_)
-sns.lineplot('param_n_neighbors', 'mean_test_score', 'param_metric', style='param_metric', data=knn_results)
-plt.show()
-
-# %% knn with pre processing
-pipeline = Pipeline([('selector', SelectKBest(chi2)),
-                     ('scalar', preprocessing.MinMaxScaler()),
-                     ('c', KNeighborsClassifier(weights='distance'))])
-k = range(1, 60)
-metric = ['euclidean', 'chebyshev', 'manhattan']
-kbest = [1000]
-grid_search_dict = dict(c__n_neighbors=k, c__metric=metric, selector__k=kbest)
-knn_p = GridSearchCV(pipeline, grid_search_dict, cv=10, n_jobs=-1)
-
-
-def knn_p_plot(X):
-    knn_p.fit(X, y)
-    best_estimator = knn_p.best_estimator_
-    print('Best Mean Score with Preprocessing', knn_p.best_score_, 'Model', best_estimator)
-    knn_results = pd.DataFrame(knn_p.cv_results_)
-    sns.lineplot('param_c__n_neighbors', 'mean_test_score', 'param_c__metric', style='param_c__metric',
-                 data=knn_results)
-    plt.show()  # TODO plot them together
-
-
-knn_p_plot(X_best_rfecv)
-knn_p_plot(X_best_k)
-knn_p_plot(X)
-
-# %% mlp with pca
-pipeline = Pipeline([('scalar', preprocessing.MinMaxScaler()),
-                     ('pca', PCA(0.95)),
-                     ('c', MLPClassifier(max_iter=1000, activation='relu'))])
-mlp_p = GridSearchCV(pipeline, param_grid={}, cv=3, n_jobs=-1)
-mlp_p.fit(X, y)
-mlp_best_estimator = mlp_p.best_estimator_
-print('Best Mean Score with Preprocessing', mlp_p.best_score_, 'Model',
-      mlp_best_estimator)
-
-# %% mlp with SelectKBest
-pipeline = Pipeline([('selector', SelectKBest(chi2)),
-                     ('scalar', preprocessing.MinMaxScaler()),
-                     # ('pca', PCA(0.99)),
-                     ('c', MLPClassifier(max_iter=1000, activation='relu'))])
-layers = [(100,)]
-k = [4000]
-grid_search_dict = dict(
-    c__hidden_layer_sizes=layers,
-    selector__k=k
-)
-mlp_p = GridSearchCV(pipeline, param_grid=grid_search_dict, cv=3, n_jobs=-1)
-mlp_p.fit(X, y)
-mlp_best_estimator = mlp_p.best_estimator_
-print('Best Mean Score with Preprocessing', mlp_p.best_score_, 'Model',
-      mlp_best_estimator)
-
-# %% mlp with best
-pipeline = Pipeline([('scalar', preprocessing.MinMaxScaler()),
-                     ('c', MLPClassifier())])
-activation = ['relu', 'tanh', 'logistic', 'sigmoid', 'softmax']
-grid_search_dict = dict(
-    c__activation=activation
-)
-mlp_p = GridSearchCV(pipeline, param_grid=grid_search_dict, cv=3, n_jobs=-1)
-mlp_p.fit(X_best_rfecv, y)
-mlp_best_estimator = mlp_p.best_estimator_
-print('Best Mean Score with Preprocessing', mlp_p.best_score_, 'Model', mlp_best_estimator)
-mlp_results = pd.DataFrame(mlp_p.cv_results_)
-
-sns.barplot('param_activation', 'mean_test_score', data=mlp_results)
-plt.show()
-
-# %%
-pipeline = Pipeline([('selector', SelectKBest(chi2)),
-                     ('scalar', preprocessing.MinMaxScaler()),
-                     ('c', RandomForestClassifier())])
-k = [2000]
-
-# %%
-score = 0
-k = 0
-for x in np.arange(1000, 6000, 10):
-    selector = SelectKBest(chi2, k=x)
-    X_best_k = selector.fit_transform(train.drop(['Class'], axis=1), train['Class'])
-    best_k_features = list(train.drop('Class', axis=1).columns[selector.get_support()])
-
-    scaler = preprocessing.MinMaxScaler().fit(train[best_k_features])
-    temp = cross_val_score(MLPClassifier(max_iter=1200, activation='relu'), scaler.transform(train[best_k_features]),
-                           train['Class'], cv=4).mean()
-    print(x)
-    if temp > score:
-        score = temp
-        k = x
-
-# %%
-test = pd.read_csv(dataset_path + "amazon_review_ID.shuf.tes.csv")
-sample_solution = pd.read_csv(dataset_path + "amazon_review_ID.shuf.sol.ex.csv")
-
-scaler = preprocessing.MinMaxScaler().fit(train[best_k_features])
-mlp = MLPClassifier(
-    max_iter=1000,
-    activation='relu',
-)
-mlp.fit(scaler.transform(train[best_k_features]), train['Class'])
-prediction = mlp.predict(scaler.transform(test[best_k_features]))
-
-sample_solution['Class'] = prediction
-sample_solution.to_csv("amazon/dataset/sol.csv", index=False)
-
-# %%
-test = pd.read_csv(dataset_path + "amazon_review_ID.shuf.tes.csv")
-sample_solution = pd.read_csv(dataset_path + "amazon_review_ID.shuf.sol.ex.csv")
-
-X_train = rf_ecv.transform(scaler_min_max.transform(X))
-X_test = rf_ecv.transform(scaler_min_max.transform(test.drop('ID', axis=1)))
-
-mlp = MLPClassifier(
-    hidden_layer_sizes=(1100, 1100, 300),
-    max_iter=1000,
-    activation='relu',
-    verbose=True
-)
-mlp.fit(X_train, y)
-prediction = mlp.predict(X_test)
-
-sample_solution['Class'] = prediction
-sample_solution.to_csv("amazon/dataset/sol.csv", index=False)
-
-# %%
-from sklearn.svm import SVC
-
-test = pd.read_csv(dataset_path + "amazon_review_ID.shuf.tes.csv")
-sample_solution = pd.read_csv(dataset_path + "amazon_review_ID.shuf.sol.ex.csv")
-
-scaler = MinMaxScaler()
-X_train = scaler.fit_transform(X)
-X_test = scaler.transform(test.drop('ID', axis=1))
-
-svc = SVC()
-
-svc.fit(X_train, y)
-prediction = svc.predict(X_test)
-
-sample_solution['Class'] = prediction
-sample_solution.to_csv("amazon/dataset/sol.csv", index=False)
+# # %% knn without pre processing comparison of features
+# k = range(1, 60)
+# metric = ['euclidean', 'chebyshev', 'manhattan']
+# weights = ['uniform', 'distance']
+# grid_search_dict = dict(n_neighbors=k, metric=metric, weights=weights)
+# knn_np = GridSearchCV(KNeighborsClassifier(), grid_search_dict,
+#                       cv=5, n_jobs=-1)
+# knn_np.fit(X_best_k, y)
+#
+# best_estimator = knn_np.best_estimator_
+# print('Best Mean Score without Preprocessing', knn_np.best_score_, 'Model',
+#       best_estimator)
+# knn_results = pd.DataFrame(knn_np.cv_results_)
+# sns.lineplot('param_n_neighbors', 'mean_test_score', 'param_metric', style='param_metric', data=knn_results)
+# plt.show()
+#
+# # %% knn with pre processing
+# pipeline = Pipeline([('selector', SelectKBest(chi2)),
+#                      ('scalar', preprocessing.MinMaxScaler()),
+#                      ('c', KNeighborsClassifier(weights='distance'))])
+# k = range(1, 60)
+# metric = ['euclidean', 'chebyshev', 'manhattan']
+# kbest = [1000]
+# grid_search_dict = dict(c__n_neighbors=k, c__metric=metric, selector__k=kbest)
+# knn_p = GridSearchCV(pipeline, grid_search_dict, cv=10, n_jobs=-1)
+#
+#
+# def knn_p_plot(X):
+#     knn_p.fit(X, y)
+#     best_estimator = knn_p.best_estimator_
+#     print('Best Mean Score with Preprocessing', knn_p.best_score_, 'Model', best_estimator)
+#     knn_results = pd.DataFrame(knn_p.cv_results_)
+#     sns.lineplot('param_c__n_neighbors', 'mean_test_score', 'param_c__metric', style='param_c__metric',
+#                  data=knn_results)
+#     plt.show()  # TODO plot them together
+#
+#
+# knn_p_plot(X_best_rfecv)
+# knn_p_plot(X_best_k)
+# knn_p_plot(X)
+#
+# # %% mlp with pca
+# pipeline = Pipeline([('scalar', preprocessing.MinMaxScaler()),
+#                      ('pca', PCA(0.95)),
+#                      ('c', MLPClassifier(max_iter=1000, activation='relu'))])
+# mlp_p = GridSearchCV(pipeline, param_grid={}, cv=3, n_jobs=-1)
+# mlp_p.fit(X, y)
+# mlp_best_estimator = mlp_p.best_estimator_
+# print('Best Mean Score with Preprocessing', mlp_p.best_score_, 'Model',
+#       mlp_best_estimator)
+#
+# # %% mlp with SelectKBest
+# pipeline = Pipeline([('selector', SelectKBest(chi2)),
+#                      ('scalar', preprocessing.MinMaxScaler()),
+#                      # ('pca', PCA(0.99)),
+#                      ('c', MLPClassifier(max_iter=1000, activation='relu'))])
+# layers = [(100,)]
+# k = [4000]
+# grid_search_dict = dict(
+#     c__hidden_layer_sizes=layers,
+#     selector__k=k
+# )
+# mlp_p = GridSearchCV(pipeline, param_grid=grid_search_dict, cv=3, n_jobs=-1)
+# mlp_p.fit(X, y)
+# mlp_best_estimator = mlp_p.best_estimator_
+# print('Best Mean Score with Preprocessing', mlp_p.best_score_, 'Model',
+#       mlp_best_estimator)
+#
+# # %% mlp with best
+# pipeline = Pipeline([('scalar', preprocessing.MinMaxScaler()),
+#                      ('c', MLPClassifier())])
+# activation = ['relu', 'tanh', 'logistic', 'sigmoid', 'softmax']
+# grid_search_dict = dict(
+#     c__activation=activation
+# )
+# mlp_p = GridSearchCV(pipeline, param_grid=grid_search_dict, cv=3, n_jobs=-1)
+# mlp_p.fit(X_best_rfecv, y)
+# mlp_best_estimator = mlp_p.best_estimator_
+# print('Best Mean Score with Preprocessing', mlp_p.best_score_, 'Model', mlp_best_estimator)
+# mlp_results = pd.DataFrame(mlp_p.cv_results_)
+#
+# sns.barplot('param_activation', 'mean_test_score', data=mlp_results)
+# plt.show()
+#
+# # %%
+# pipeline = Pipeline([('selector', SelectKBest(chi2)),
+#                      ('scalar', preprocessing.MinMaxScaler()),
+#                      ('c', RandomForestClassifier())])
+# k = [2000]
+#
+# # %%
+# score = 0
+# k = 0
+# for x in np.arange(1000, 6000, 10):
+#     selector = SelectKBest(chi2, k=x)
+#     X_best_k = selector.fit_transform(train.drop(['Class'], axis=1), train['Class'])
+#     best_k_features = list(train.drop('Class', axis=1).columns[selector.get_support()])
+#
+#     scaler = preprocessing.MinMaxScaler().fit(train[best_k_features])
+#     temp = cross_val_score(MLPClassifier(max_iter=1200, activation='relu'), scaler.transform(train[best_k_features]),
+#                            train['Class'], cv=4).mean()
+#     print(x)
+#     if temp > score:
+#         score = temp
+#         k = x
+#
+# # %%
+# test = pd.read_csv(dataset_path + "amazon_review_ID.shuf.tes.csv")
+# sample_solution = pd.read_csv(dataset_path + "amazon_review_ID.shuf.sol.ex.csv")
+#
+# scaler = preprocessing.MinMaxScaler().fit(train[best_k_features])
+# mlp = MLPClassifier(
+#     max_iter=1000,
+#     activation='relu',
+# )
+# mlp.fit(scaler.transform(train[best_k_features]), train['Class'])
+# prediction = mlp.predict(scaler.transform(test[best_k_features]))
+#
+# sample_solution['Class'] = prediction
+# sample_solution.to_csv("amazon/dataset/sol.csv", index=False)
+#
+# # %%
+# test = pd.read_csv(dataset_path + "amazon_review_ID.shuf.tes.csv")
+# sample_solution = pd.read_csv(dataset_path + "amazon_review_ID.shuf.sol.ex.csv")
+#
+# X_train = rf_ecv.transform(scaler_min_max.transform(X))
+# X_test = rf_ecv.transform(scaler_min_max.transform(test.drop('ID', axis=1)))
+#
+# mlp = MLPClassifier(
+#     hidden_layer_sizes=(1100, 1100, 300),
+#     max_iter=1000,
+#     activation='relu',
+#     verbose=True
+# )
+# mlp.fit(X_train, y)
+# prediction = mlp.predict(X_test)
+#
+# sample_solution['Class'] = prediction
+# sample_solution.to_csv("amazon/dataset/sol.csv", index=False)
+#
+# # %%
+# from sklearn.svm import SVC
+#
+# test = pd.read_csv(dataset_path + "amazon_review_ID.shuf.tes.csv")
+# sample_solution = pd.read_csv(dataset_path + "amazon_review_ID.shuf.sol.ex.csv")
+#
+# scaler = MinMaxScaler()
+# X_train = scaler.fit_transform(X)
+# X_test = scaler.transform(test.drop('ID', axis=1))
+#
+# svc = SVC()
+#
+# svc.fit(X_train, y)
+# prediction = svc.predict(X_test)
+#
+# sample_solution['Class'] = prediction
+# sample_solution.to_csv("amazon/dataset/sol.csv", index=False)
