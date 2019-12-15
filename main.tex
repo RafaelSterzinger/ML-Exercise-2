@@ -52,29 +52,42 @@ Parameters altered:
 \end{itemize}
 
 \subsection{Random Forest Classifier}
-The Random Forest Classifier is an ensemble algorithm, which means that it consists of several build instances of estimators on random subsets of the original train data and their classification is then aggregated to give a final prediction. This helps to reduces the variance of a base estimator, which in the case of the Random Forest Classifier is a Decision Tree Classifier.
+The Random Forest Classifier is an ensemble algorithm, which means that it consists of several build instances of estimators on random subsets of the original train data and their classification is then aggregated to give a final prediction. This helps to reduces the variance of a base estimator, which in the case of the Random Forest Classifier is a Decision Tree Classifier. Generating multiple estimators is also a simple way to avoid overfitting. Parameters such as max\_samples or max\_features control the size of the subsets, whereas bootstrapping decides if features/samples are drawn with or without replacement.
 
-In many cases, bagging methods constitute a very simple way to improve with respect to a single model, without making it necessary to adapt the underlying base algorithm. As they provide a way to reduce overfitting, bagging methods work best with strong and complex models (e.g., fully developed decision trees), in contrast with boosting methods which usually work best with weak models (e.g., shallow decision trees).
-
-Bagging methods come in many flavours but mostly differ from each other by the way they draw random subsets of the training set:
-
-
-
-%In scikit-learn, bagging methods are offered as a unified BaggingClassifier meta-estimator (resp. BaggingRegressor), taking as input a user-specified base estimator along with parameters specifying the strategy to draw random subsets. In particular, max_samples and max_features control the size of the subsets (in terms of samples and features), while bootstrap and bootstrap_features control whether samples and features are drawn with or without replacement. When using a subset of the available samples the generalization accuracy can be estimated with the out-of-bag samples by setting oob_score=True. As an example, the snippet below illustrates how to instantiate a bagging ensemble of KNeighborsClassifier base estimators, each built on random subsets of 50% of the samples and 50% of the features.
-
-In random forests (see RandomForestClassifier and RandomForestRegressor classes), each tree in the ensemble is built from a sample drawn with replacement (i.e., a bootstrap sample) from the training set.
-
-%Furthermore, when splitting each node during the construction of a tree, the best split is found either from all input features or a random subset of size max_features. (See the parameter tuning guidelines for more details).
-
-The purpose of these two sources of randomness is to decrease the variance of the forest estimator. Indeed, individual decision trees typically exhibit high variance and tend to overfit. The injected randomness in forests yield decision trees with somewhat decoupled prediction errors. By taking an average of those predictions, some errors can cancel out. Random forests achieve a reduced variance by combining diverse trees, sometimes at the cost of a slight increase in bias. In practice the variance reduction is often significant hence yielding an overall better model.
-
-In contrast to the original publication [B2001], the scikit-learn implementation combines classifiers by averaging their probabilistic prediction, instead of letting each classifier vote for a single class.
+Parameters altered:
+\begin{itemize}
+\item n\_estimators
+\item max\_features
+\item min\_samples\_split
+\item criterion
+\end{itemize}
 
 \subsection{Multi-Layer Perceptron Classifier}
-% TODO: explain why k nearest neighbour, outline
+A Multi-Layer Perceptron (MLP) is a supervised learning technique, which learns to approximate a function
+by training on a dataset. It takes the attributes as an input and return a prediction for the target class and thus can learn a non-linear function for classification. Between the input and the output layer can also be multiple hidden layers, all consisting of neurons, which are connected with each other. Each neuron in the hidden layer transforms the values from the previous layer with a weighted linear summation, followed by a non-linear activation function. Different activation function can be used, such as logistic, hyperbolic tan function or relu. A MLP has multiple advantages, e.g. it is sensitive to feature scaling which can be either good or bad, or parameter tuning which can take much time, especially depending on the amount of samples, features or layers.
+
+Parameters altered:
+\begin{itemize}
+\item hidden\_layer\_sizes
+\item activation
+\item solver
+\item learning\_rate
+\item max\_iter
+\end{itemize}
 
 \section{Performance Metrics}
-% TODO: warum wir den gewählt haben für
+For the Performance Metrics accuracy, precision, recall and F1 were chosen. In the following section a short overview about each metric will be presented, however the question about the usefulness of a metric depending on a specific dataset is answered for each dataset on its own. In Figure \ref{fig:conf} the evaluation of a binary prediction is visualized, which is also known as the table of confusion. For multi label target values, it is also differed between micro and macro, which defines the way how multiple values are aggregate and when the average is calculated. In this report macro has been selected.
+
+\image{performance.png}{Table of confusion}{\label{fig:conf}}
+\begin{itemize}
+\item $Accuracy = \frac{TP + TN}{TP + FP + FN + TN}$
+
+\item $Precision = \frac{TP}{TP+FP} = P$
+
+\item $Recall = \frac{TP}{TP+FN} = R$
+
+\item $F1=2*\frac{P*R}{P+R}$
+\end{itemize}
 
 \section{Breast-Cancer Dataset}
 \input{breast/breast-cancer.tex}
