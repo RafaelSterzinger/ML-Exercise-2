@@ -2,9 +2,9 @@
 \usepackage[utf8]{inputenc}
 \usepackage[official]{eurosym}
 \usepackage{graphicx}
-\usepackage[font=small,labelfont=bf]{caption}
+\usepackage{float}
 
-\newcommand{\size}{0.9\textwidth}
+\newcommand{\size}{0.8\textwidth}
 
 \newcommand{\image}[3]{
 \begin{figure}
@@ -18,7 +18,7 @@
 
 \begin{document}
 
-The Iris dataset was chosen, because of its low dimensionality and its small number of samples, which fulfils the requirement to be contrary to the other selected set and is a good beginning example to classification. Furthermore, it is a very well known dataset, which allows comparison and therefore gives feedback on the performance our results. In general, preprocessing is not mandatory, however since the dataset contains only rational data types, it would be interesting two compare the scaled data versus the non-scaled one. A selection of features is not necessary, since it only consists of four dimensions and already performs quite well.
+The Iris dataset was chosen, because of its low number of dimensions and its small number of samples, which fulfils the requirement to be contrary to the other selected set and is a good beginning example to classification. Furthermore, it is a very well known dataset, which allows comparison and therefore gives feedback on the performance our results. In general, preprocessing is not mandatory, however since the dataset contains only rational data types, it would be interesting two compare the scaled data versus the non-scaled one. A selection of features is not necessary, since it only consists of four dimensions and already performs quite well. For the following analysis of the different classification techniques in regards with the Iris dataset, mainly \textit{GridSearchCV}, with cross validation from 3 to 10, depending on the complexity and therefore on the runtime, was used. 
 
 \subsection{Characteristics}
 
@@ -34,22 +34,30 @@ Comparing the correlation of the different attributes, \textit{petal width}, \te
 
 \image{plots/heatmap.png}{Heatmap of the different attributes of the Iris dataset}{\label{fig:heat}}
 
-\subsection{Characteristics of Classifiers}
-A comparison of the different classifiers in sepal width versus sepal length or petal width versus petal length shows, that the class Setosa is the most distinguishable. Concerning the classes Versicolor and Virginica, they are rather unique when comparing them in petal width versus petal length, whereas in sepal width versus sepal length they are not separable. All three classes are uniformly distributed with 50 instances each.
+\subsection{Characteristics of Target Value}
+A comparison of the different classifiers in sepal width versus sepal length or petal width versus petal length shows, that the class Setosa is the most distinguishable (Figure \ref{petal}). Concerning the classes Versicolor and Virginica, they are rather unique when comparing them in petal width versus petal length, whereas in sepal width versus sepal length they are not separable. All three classes are uniformly distributed with 50 instances each.
 
-\image{plots/petal.png}{Comparison of Petal Length versus Petal Width}{\label{fig:petal}}
+\image{plots/petal.png}{Comparison of Petal Length versus Petal Width}{\label{petal}}
 
 \subsection{K Nearest Neighbours Classifier}
-For K Nearest Neighbours a \textit{GridSearchCV} was carried out, where especially different \textit{k's} and metrics have been altered. Before that, a more general search has shown, that uniform weights perform better on the Iris dataset. Without preprocessing the best estimator is an Euclidean classifier, where \textit{k} equals 13. Comparing the different metrics, Chebyshev peaks earlier than euclidean, whereas Euclidean generally performed the best and Manhattan the worst. 
+For K Nearest Neighbours a \textit{GridSearchCV} was carried out, where especially different \textit{k's} and metrics have been altered. Before that, a more general search has shown, that uniform weights perform better on the Iris dataset. Without preprocessing the best estimator is an Euclidean classifier, where \textit{k} equals 13. Comparing the different metrics, Chebyshev peaks earlier than euclidean, whereas Euclidean generally performed the best and Manhattan the worst (Figure \ref{knn}). 
 
-\image{plots/knn_np_comparision.png}{K Nearest Neighbours with different distance metrics}{\label{fig:knn_comp}}
+\image{plots/knn_np_comparision.png}{K Nearest Neighbours with different distance metrics}{\label{knn}}
+
+With regards to the question about the effect of preprocessing, Figure \ref{prepro} shows clearly, that on the Iris dataset preprocessed data performs worse than non preprocessed. Figure \ref{prepro} compares each best estimator for preprocessed and non preprocessed. Both estimators use the Euclidean distance metric and differ only in \textit{k}, where for preprocessing \textit{k=30} and for non preprocessing \textit{k=13} performed the best.  For preprocessing solely a \textit{MinMaxScaler} has been used.
+
 \image{plots/knn_np_p_comparision.png}{Preprocessing versus No-Preprocessing}{\label{prepro}}
 
 \subsection{Random Forest Classifier}
+Concerning the Random Forest Classifier, a \textit{RandomizedSearchCV} was used to approximate the hyper parameters, such as the amount of estimators or the min samples split size, before a more specific search was done. This randomized search picked \textit{gini} as the better measurement of the quality of  a split and a min samples split of about 0.01, which was altered between 0.01 and 0.199. \\
+The amount of different max features was only changed in the more specific \textit{GridSearchCV}, where previously found approximations of the parameters were used to keep the runtime shorter. Referring to Figure \ref{rf}, a real difference in performance seems to be only between one and more than one features. The amount of estimators do not make a big difference, but the search picked 80 as the best amount with max features of 2 for preprocessed and non preprocessed data. Both models archived the same performance, which is no surprise since scaling does not influence decision trees as well as a random forest.
+
 \image{plots/rf_np_comparision.png}{Comparison of the \textit{max\_features} attribute for different \textit{n\_estimators}}{\label{rf}}
 
 \subsection{Multi-Layer Perceptron Classifier}
 \image{plots/mlp_np_comparision.png}{Comparison of different models and activation functions}{\label{mlp}}
+
+For the Multi-Layer Perceptron a strategy, similarly to the random forest one,  was chosen, where a general search was done by the \textit{RandomizedSearchCV}, followed by a more specific one with the \textit{GridSearchCV}.
 
 \subsection{Conclusion}
 
@@ -62,7 +70,7 @@ KNeighborsClassifier   & 0.9733        & 0.9800           \\ \hline
 RandomForestClassifier & 0.9666        & 0.9666           \\ \hline
 MLPClassifier          & 0.9666        & 0.9866           \\ \hline
 \end{tabular}
-\caption{Comparision of accuracy of different techniques with- and without preprocessing}
+\caption{Comparison of accuracy of different techniques with- and without preprocessing}
 \end{center}
 \end{table}
 
@@ -75,7 +83,7 @@ KNeighborsClassifier   & 0.9333  & 0.9800           \\ \hline
 RandomForestClassifier & 0.9666  & 0.9666           \\ \hline
 MLPClassifier          & 1.0000  & 0.9866           \\ \hline
 \end{tabular}
-\caption{Comparision of accuracy of holdout versus cross-validation}
+\caption{Comparison of accuracy of holdout versus cross-validation}
 \end{center}
 \end{table}
 
@@ -84,11 +92,11 @@ MLPClassifier          & 1.0000  & 0.9866           \\ \hline
 \begin{tabular}{|l|l|l|l|l|l|}
 \hline
                        & Accuracy & Precision & Recall & F1     & Runtime (sec) \\ \hline
-KNeighborsClassifier   & 0.9800   & 0.0.9833  & 0.9799 & 0.9797 & 0.0034        \\ \hline
-RandomForestClassifier & 0.9600   & 0.9644    & 0.9600 & 0.9597 & 0.1947        \\ \hline
-MLPClassifier          & 0.9800   & 0.9848    & 0.9800 & 0.9793 & 1.5557        \\ \hline
+KNeighborsClassifier   & 0.9800   & 0.9833  & 0.9799 & 0.9797 & 0.0014        \\ \hline
+RandomForestClassifier & 0.9600   & 0.9644    & 0.9600 & 0.9597 & 0.0695        \\ \hline
+MLPClassifier          & 0.9800   & 0.9848    & 0.9800 & 0.9793 & 0.7719        \\ \hline
 \end{tabular}
-\caption{Comparision of different performance metrics and runtimes}
+\caption{Comparison of different performance metrics and runtimes}
 \end{center}
 \end{table}
 
