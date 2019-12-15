@@ -1,6 +1,23 @@
 \documentclass{article}
 
+\newcommand{\size}{0.8\textwidth}
+
+\newcommand{\image}[3]{
+\begin{figure}
+\begin{center}
+\includegraphics[width=\size]{#1}
+\caption{#2}
+#3
+\end{center}
+\end{figure}
+}
+
 \usepackage{graphicx}
+\usepackage[utf8]{inputenc}
+\usepackage[official]{eurosym}
+\usepackage[font=small,labelfont=bf]{caption}
+\usepackage{float}
+
 
 \title{Exercise 2: Classfication}
 \author{Rafaelt Sterzinger, Christian Stippel, Fatjon Zogaj}
@@ -29,11 +46,8 @@
 \section{Amazon-Reviews Dataset}
 \input{amazon/amazon-reviews.tex}
 
-\section{Wine-Quality Dataset}
-\input{wine/wine-quality.tex}
-
 \section{Iris Dataset}
-\input{iris/iris.tex}
+% \input{iris/iris.tex}
 
 \section{Conclusion}
 %Overall Comparision of techniques

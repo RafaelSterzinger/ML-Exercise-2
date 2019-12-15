@@ -120,7 +120,7 @@ print('Best Mean Score With Selected Features', knn.best_score_, 'Model', knn.be
 knn_results = pd.DataFrame(knn.cv_results_)
 sns.lineplot('param_n_neighbors', 'mean_test_score',
              data=knn_results[knn_results['param_metric'] == 'manhattan'])
-plt.legend(['Without Preprocessing', 'With Preprocessing'])
+plt.legend(['With all Features', 'With selected Features'])
 plt.savefig("plots/knn_feature_comparision.png")
 plt.show()
 

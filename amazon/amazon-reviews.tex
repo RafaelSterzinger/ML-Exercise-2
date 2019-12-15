@@ -1,4 +1,7 @@
-The amazon dataset was the first mandatory dataset. We accomplished getting a score of 72.8\% on kaggle. It is high dimensional and has quie a lot of samples. It is not well known. Feature selection should can be used to improve results by about 20-40 percent depending on the classifier. Scaling is not that important.
+The amazon dataset was the first mandatory dataset. We accomplished getting a score of 72.8\% on kaggle. The high dimensionality is the challenge of this dataset.
+
+
+
 
 \subsection{Characteristics}
 
@@ -10,80 +13,113 @@ The amazon dataset was the first mandatory dataset. We accomplished getting a sc
 \item 750 samples
 \end{itemize}
 
-\subsection{}
-As seen in Figure \ref{fig:amazon-target} there are only little samples per class.
+With its 10 000 attributes it is high dimensional. Therefore Feature Selection is important, but features can not be interpreted by hand, because there are too many. In order to find good features algorithms from scipy were used as described in section \ref{amazon-feature-selection}.
 
-\begin{figure}[H]
-  \begin{center}
-    \includegraphics[width=\linewidth]{amazon/plots/target.png}
-    \caption{Histogram of the target values}
-    \label{fig:amazon-target}
-  \end{center}
-\end{figure}
+\subsection{Characteristics of Target value}
+The target classes are the different authors of the reviews.
+ There are 50 different authors, even though the dataset has a lot of samples there are only a few samples per class.
+This is shownn in Figure \ref{fig:amazon-target}. With a minimum of 8 samples written by CFH and a maximum of 21 samples written by Chell. 
+On the other hand 10 000 attributes for each sample might be sufficient for classification.
+
+\image{amazon/plots/target.png}{Histogram of the target values}{\label{fig:amazon-target}}
+
+% \begin{figure}[H]
+%   \begin{center}
+%     \includegraphics[width=\linewidth]{amazon/plots/target.png}
+%     \caption{Histogram of the target values}
+%     \label{fig:amazon-target}
+%   \end{center}
+% \end{figure}
 
 
 \subsection{Feature selection}
+\label{amazon-feature-selection}
+Feature selection improves results and reduce the runtime a lot. It was not possible to train the multi layer perceptron without feature selection, because it took over 10 minutes to complete, therefore no comparison without feature selection would be possible. The results are improved by 20-40 percent depending on the classifier. 
 
-We selected features based on SelectKBest, which perform ${\chi}^2$ test to the samples to retrieve the best features. We also used Recursive feature elimination with cross-validation. As seen in Figure \ref{fig:amazon-feature-selection} at least 1000 features should be used to cross the 55 percent mark, however no difference in performance could be detected between 1000 and 4000 selected features.
+Features were selected by SelectKBest and recursive feature elimination and cross-validated selection of the best numbers of features.
+SelectKBest performs ${\chi}^2$ test on the samples to retrieve the best features.
+As seen in Figure \ref{fig:amazon-feature-selection} at least 1000 features should be used to cross the 55 percent mark, however no difference in performance could be detected between 1000 and 4000 selected features.
 
-\begin{figure}[H]
-  \begin{center}
-    \includegraphics[height=7cm]{amazon/plots/rf_feature_selection.png}
-    \caption{Comparison of different metrics}
-    \label{fig:amazon-feature-selection}
-  \end{center}
-\end{figure}
+\image{amazon/plots/rf_feature_selection.png}{recursive feature selection with random forest tree}{\label{fig:amazon-feature-selection}}
+
+% \begin{figure}[H]
+%   \begin{center}
+%     \includegraphics[height=7cm]{amazon/plots/rf_feature_selection.png}
+%     \caption{Comparison of different metrics}
+%     \label{fig:amazon-feature-selection}
+%   \end{center}
+% \end{figure}
 
 \subsection{K Nearest Neighbors Classifier}
 
-K Nearest Neighbors Classifier worked best with weights set to distance. Meaning that the importance of the k neighbors are weighted by their distance. This increased results by about 10\%. As seen in Figure \ref{fig:amazon-knn-metric-comparison} the manhattan metric worked best.
+For K Nearest Neighbours a Grid Search with cross validation was used. The euclidean, chebyshev, manhattan, manhattan and k between 1 and 60 were tested. 
+The best k for KNN without preprocessing and all attributes was 10.
+The best k for KNN with preprocessing and features selected by recursive feature selection was 15.
+K Nearest Neighbors Classifier worked best with weights set to distance, so that the importance of the k neighbors are weighted by their distances to other samples.
+This increased results by about 5\%. As seen in Figure \ref{fig:amazon-knn-metric-comparison} the manhattan metric worked best.
+The best performance of KNN was 44.13\% which is poor in comparison to random forest and mlp.
+This is probably due to the small sample size in comparison to the target class size.
+However it evaluated much faster, so first impressions could be derived more quickly.
 
-\begin{figure}[H]
-  \begin{center}
-    \includegraphics[width=\linewidth]{amazon/plots/knn_metrics.png}
-    \caption{Comparison of different metrics}
-    \label{fig:amazon-knn-metric-comparison}
-  \end{center}
-\end{figure}
+\image{amazon/plots/knn_metrics.png}{Comparison of knn metrics}{\label{fig:amazon-knn-metric-comparison}}
+% \begin{figure}[H]
+%   \begin{center}
+%     \includegraphics[width=\linewidth]{amazon/plots/knn_metrics.png}
+%     \caption{Comparison of different metrics}
+%     \label{fig:amazon-knn-metric-comparison}
+%   \end{center}
+% \end{figure}
 
-Preprocessing with MinMax scalar improved results by around 5\% as seen in figure \ref{fig:amazon-knn-comparison}. Scaling with mean and variance did lead to better results, but it was not as good as the min max scaler.
+Preprocessing with MinMax scalar improved results by around 5\% as seen in figure \ref{fig:amazon-knn-comparison}.
+Scaling with mean and variance did lead to better results, but it was not as good as the min max scaler.
 
-\begin{figure}[H]
-  \begin{center}
-    \includegraphics[width=\linewidth]{amazon/plots/knn_comparison.png}
-    \caption{Comparison of the best estimators with preprocessing and without preprocessing}
-    \label{fig:amazon-knn-comparison}
-  \end{center}
-\end{figure}
+\image{amazon/plots/knn_comparison.png}{Comparison of the best estimators with preprocessing and without preprocessing}{fig:amazon-knn-comparison}
+
+% \begin{figure}[H]
+%   \begin{center}
+%     \includegraphics[width=\linewidth]{amazon/plots/knn_comparison.png}
+%     \caption{Comparison of the best estimators with preprocessing and without preprocessing}
+%     \label{fig:amazon-knn-comparison}
+%   \end{center}
+% \end{figure}
 
 
 \subsection{Random Forest Classifier}
 
-The best features of Figure \ref{fig:amazon-feature-selection} were used for the Random Forest Classifier. As seen in Figure \ref{fig:amazon-rf-comparison}, a low maximum features yielded good results. We tested different parameters for the minimum samples that lead to splitting and found out that 0.01 works well.
+As previously described Grid Search with cross validation was used to find the best parameters.
+However this initially took too long for all parameters.
+So random search with cross validation was used to approximate features first.
+Then grid search, with a smaller search space based on the obtained results, was performed.
+The best features of Figure \ref{fig:amazon-feature-selection} were used to improve the results even more. 
+As seen in Figure \ref{fig:amazon-rf-comparison}, a low maximum features yielded good results, because of the high dimensionality.
+With 34 estimators and 30\% max features, a score of 60\% was accomplished which is almost as good as the multi layer perceptron.
+However it took significantly longer to evaluate than KNN.
 
-\begin{figure}[H]
-  \begin{center}
-    \includegraphics[width=\linewidth]{amazon/plots/rf_comparison.png}
-    \caption{Comparison of the best estimators with preprocessing and without preprocessing}
-    \label{fig:amazon-rf-comparison}
-  \end{center}
-\end{figure}
+\image{amazon/plots/rf_comparison.png}{Comparison of random forest parameters}{fig:amazon-rf-comparison}
+
+% \begin{figure}[H]
+%   \begin{center}
+%     \includegraphics[width=\linewidth]{amazon/plots/rf_comparison.png}
+%     \caption{Comparison of the best estimators with preprocessing and without preprocessing}
+%     \label{fig:amazon-rf-comparison}
+%   \end{center}
+% \end{figure}
 
 \subsection{Multi-Layer Perceptron Classifier}
 
-Testing out different hyperparamethers for mlp takes quite a lot of time. We were able to get a score of 72 \% accuracy on kaggle by using 2000 selected features with ${\chi}^2$ tests, relu as activation and one hidden layer with 100 neurons. As shown in figure \ref{fig:mlp-comparison} choosing different activation function does not make any difference.
+Testing out different hyperparamethers for mlp takes quite a lot of time. We were able to get a score of 72 \% accuracy on kaggle by using 2000 selected features with ${\chi}^2$ tests, relu as activation and one hidden layer with 100 neurons. As shown in figure \ref{fig:mlp-comparison} choosing different activation functions does not make any difference.
 
-\begin{figure}[H]
-  \begin{center}
-    \includegraphics[width=\linewidth]{amazon/plots/mlp_comparison.png}
-    \caption{Comparison of the best estimators with preprocessing and without preprocessing}
-    \label{fig:mlp-comparison}
-  \end{center}
-\end{figure}
+\image{amazon/plots/mlp_comparison.png}{Comparison of mlp parameters}{fig:mlp-comparison}
+
+% \begin{figure}[H]
+%   \begin{center}
+%     \includegraphics[width=\linewidth]{amazon/plots/mlp_comparison.png}
+%     \caption{Comparison of the best estimators with preprocessing and without preprocessing}
+%     \label{fig:mlp-comparison}
+%   \end{center}
+% \end{figure}
 
 \subsection{Conclusion}
-
-
 
 \begin{table}[H]
 \begin{center}
@@ -103,9 +139,9 @@ MLPClassifier          & 0.9666        & 0.9866           \\ \hline
 \begin{tabular}{|l|l|l|}
 \hline
                        & Holdout & Cross Validation \\ \hline
-KNeighborsClassifier   & 0.9333  & 0.9800           \\ \hline
-RandomForestClassifier & 0.9666  & 0.9666           \\ \hline
-MLPClassifier          & 1.0000  & 0.9866           \\ \hline
+KNeighborsClassifier   & 0.4066  & 0.4413           \\ \hline
+RandomForestClassifier & 0.5333  & 0.6026           \\ \hline
+MLPClassifier          & 0.6386  & 0.9866           \\ \hline
 \end{tabular}
 \caption{Comparision of accuracy of holdout versus cross-validation}
 \end{center}

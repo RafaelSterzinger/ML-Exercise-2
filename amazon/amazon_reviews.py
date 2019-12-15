@@ -102,6 +102,8 @@ knn_p = GridSearchCV(pipeline, grid_search_dict, cv=5, n_jobs=-1)
 knn_p.fit(X[best_rfecv_features], y)
 print('Best Mean Score with Preprocessing', knn_p.best_score_, 'Model', knn_p.best_estimator_)
 knn_results_p = pd.DataFrame(knn_p.cv_results_)
+
+# %%
 sns.lineplot('param_c__n_neighbors', 'mean_test_score', 'param_c__metric', data=knn_results_p)
 plt.savefig('plots/knn_metrics.png')
 plt.show()
@@ -181,8 +183,8 @@ X_train, X_test, y_train, y_test = train_test_split(X[best_rfecv_features], y, t
 rf_np.best_estimator_.fit(X_train, y_train)
 print('Best Score Hold Out', rf_np.best_estimator_.score(X_test, y_test))
 
-# %% MLP
-pipeline = Pipeline([('select', SelectKBest(chi2, k=2000)),
+# %% MLP preprocessed
+pipeline = Pipeline([('select', SelectKBest(chi2, k=1000)),
                      ('s', MinMaxScaler()),
                      ('c', MLPClassifier(random_state=random, max_iter=1000))])
 
@@ -197,14 +199,80 @@ mlp = GridSearchCV(
     n_jobs=-1)
 
 mlp.fit(X, y)
-best_estimator = mlp.best_estimator_
+best_estimator_p = mlp.best_estimator_
 
 print('Best Mean Score Without Preprocessing', mlp.best_score_, 'Model', mlp.best_estimator_)
 mlp_results = pd.DataFrame(mlp.cv_results_)
+# %% not pre processed
+
+
+# %%
 
 sns.barplot('param_c__hidden_layer_sizes', 'mean_test_score', 'param_c__activation', data=mlp_results)
 plt.savefig('plots/mlp_comparison.png')
 plt.show()
+
+# %% RF Scorer and Time
+# %% MLP CV NP
+param_grid = {
+    'hidden_layer_sizes': [(100,)],
+    'activation': ['tanh', 'relu', 'logistic', 'identity'],
+}
+
+mlp = GridSearchCV(
+    MLPClassifier(random_state=random), param_grid,
+    cv=3,
+    n_jobs=-1, verbose=True)
+
+mlp.fit(X[best_rfecv_features], y)
+
+print('Best Mean Score Without Preprocessing', mlp.best_score_, 'Model', mlp.best_estimator_)
+mlp_results = pd.DataFrame(mlp.cv_results_)
+
+# %% MLP CV P
+classifier_pipeline = Pipeline([('s', preprocessing.MinMaxScaler()),
+                                ('c', MLPClassifier(random_state=random))])
+
+param_grid = dict(c__activation=['tanh', 'relu', 'logistic', 'identity'], c__hidden_layer_sizes=[(100,)])
+
+mlp1 = GridSearchCV(classifier_pipeline, param_grid, cv=3,
+                    n_jobs=-1, verbose=True)
+
+mlp1.fit(X[best_rfecv_features], y)
+best_estimator = mlp1.best_estimator_
+
+print('Best Mean Score With Preprocessing', mlp1.best_score_, 'Model', mlp1.best_estimator_)
+mlp1_results = pd.DataFrame(mlp1.cv_results_)
+
+# %%
+
+sns.barplot('param_mlpclassifier__hidden_layer_sizes', 'mean_test_score', 'param_mlpclassifier__activation', data=mlp1_results)
+plt.savefig("plots/mlp_p_comparision.png")
+plt.show()
+
+plotdata = mlp_results[mlp_results['param_hidden_layer_sizes'] == (100,)]
+temp = mlp1_results[mlp1_results['param_mlpclassifier__hidden_layer_sizes'] == (100,)]
+temp = temp.rename(columns={'param_mlpclassifier__hidden_layer_sizes': 'param_hidden_layer_sizes',
+                            'param_mlpclassifier__activation': 'param_activation'})
+plotdata = plotdata.append(temp)
+plotdata['param_hidden_layer_sizes'] = ['a', 'a', 'a', 'a', 'b', 'b', 'b', 'b']
+
+sns.barplot('param_activation', 'mean_test_score', 'param_hidden_layer_sizes', data=plotdata)
+plt.legend(['Without Preprocessing', 'With Preprocessing'])
+plt.savefig("plots/mlp_np_p_comparision.png")
+plt.show()
+
+# %% MLP Scorer and Time
+results = cross_validate(best_estimator, X, y, scoring=scoring, cv=10)
+print('Time', results['fit_time'].mean(), 'Accuracy', results['test_Accuracy'].mean(), 'Precision',
+      results['test_Precision'].mean(), 'Recall', results['test_Recall'].mean(), 'F1', results['test_F1'].mean())
+
+# %% MLP HO
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=random,
+                                                    stratify=y)
+best_estimator.fit(X_train, y_train)
+print('Best Score Hold Out', best_estimator.score(X_test, y_test))
+
 
 # %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
