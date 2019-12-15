@@ -107,7 +107,9 @@ However it took significantly longer to evaluate than KNN.
 
 \subsection{Multi-Layer Perceptron Classifier}
 
-Testing out different hyperparamethers for mlp takes quite a lot of time. We were able to get a score of 72 \% accuracy on kaggle by using 2000 selected features with ${\chi}^2$ tests, relu as activation and one hidden layer with 100 neurons. As shown in figure \ref{fig:mlp-comparison} choosing different activation functions does not make any difference.
+For MLP grid search with a small search space was used, because testing out different hyperparameters is not feasable, because it takes a lot of time.`
+As shown in figure \ref{fig:mlp-comparison} choosing different activation functions does hardly make any difference.
+A score of 72.8 \% accuracy was obtained in kaggle by using 2000 selected features with ${\chi}^2$ tests, relu as activation and one hidden layer with 100 neurons.
 
 \image{amazon/plots/mlp_comparison.png}{Comparison of mlp parameters}{fig:mlp-comparison}
 
@@ -120,6 +122,8 @@ Testing out different hyperparamethers for mlp takes quite a lot of time. We wer
 % \end{figure}
 
 \subsection{Conclusion}
+
+
 
 \begin{table}[H]
 \begin{center}
