@@ -19,7 +19,7 @@
 % New Packages
 \usepackage{hyperref}
 % Referenz
-\newcommand{\secref}[1]{\autoref{#1}. \texit{\nameref{#1}}}
+\newcommand{\secref}[1]{\autoref{#1}. \textit{\nameref{#1}}}
 
 \usepackage{floatrow}
 % Table float box with bottom caption, box width adjusted to content
@@ -112,13 +112,11 @@ Looking at \secref{fig:knn_wo_pre} one can see that using the most attributes le
 \end{floatrow}
 \end{figure}
 
-As can be seen in \secref{fig:knn_w_pre} scaling the data leads to a best case improvement of around 0.07 compared to the unscaled data which only increases with increasing k. Another thing that scaling the data does, is reducing the overall decrease of the recall with changing k. This figure also shows that the euclidean and manhattan metric perform very similar for this dataset while the chebyshev performs slightly worse.
-
-
-A general analysis beforehand showed that, while different weight parameters change how the recall values react to different k's, with \textit{uniform} being more sensitive compared to \texit{distance}, they do not change the best achievable values.
-
+As can be seen in \secref{fig:knn_w_pre} scaling the data leads to a best case improvement of around 0.07 compared to the unscaled data which only increases with increasing k. Another thing that scaling the data does, is reducing the overall decrease of the recall with changing k. This figure also shows that the euclidean and manhattan metric perform very similar for this dataset while the chebyshev performs slightly worse. \\
+\newline
+A general analysis beforehand showed that, while different weight parameters change how the recall values react to different k's, with \textit{uniform} being more sensitive compared to  \textit{distance}, they do not change the best achievable values.
 \subsection{Random Forest Classifier}
-For Random Forest Classifier we have used GridSearchCV to try out a few different parameters like \texit{n\_estimators, max\_depth and the criterion}. \\
+For Random Forest Classifier we have used GridSearchCV to try out a few different parameters like \textit{n\_estimators, max\_depth and the criterion}. \\
 \newline
 By doing a few pre tests and comparing how the criterion affects the recall value, we note that they lead to very similar results for this dataset. Since Gini is a tiny bit better than Entropy, it will be used for the other comparisons. \\
 \newline
@@ -159,7 +157,7 @@ It can be said, that while the hidden layer sizes obviously matter, the activati
 
 \subsection{Conclusion}
 \subsubsection{Preprocessing vs No-Preprocessing}
-To be able to look at more than just the numerical values, \texit{No-Preprocessing} in this case stands for the data after the general Preprocessing (One Hot Encoding, remove Missing values, ...), mentioned in \secref{GenPrepro}, has been done. We compare the unpreprocessed data with the data after MinMax scaling.\\% and after introducing a new feature by weighting the outliers.
+To be able to look at more than just the numerical values, \textit{No-Preprocessing} in this case stands for the data after the general Preprocessing (One Hot Encoding, remove Missing values, ...), mentioned in \secref{GenPrepro}, has been done. We compare the unpreprocessed data with the data after MinMax scaling.\\% and after introducing a new feature by weighting the outliers.
 \newline
 Analysing \secref{tab:onl_pre_no_pre}, we can see that using a MinMax Scalar only works for the K Nearest Neighbors Classifier and the Multi-Layer Perceptron. As the Random Forest Classifier does not work with distances,  the ranges of the different attributes does not matter. Hence using a MinMaxScaler actually leads to worse results for the Random Forest Classifier.
 
