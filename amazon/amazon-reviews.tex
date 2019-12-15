@@ -1,8 +1,5 @@
 The amazon dataset was the first mandatory dataset. We accomplished getting a score of 72.8\% on kaggle. The high dimensionality is the challenge of this dataset.
 
-
-
-
 \subsection{Characteristics}
 
 \begin{itemize}
@@ -13,7 +10,9 @@ The amazon dataset was the first mandatory dataset. We accomplished getting a sc
 \item 750 samples
 \end{itemize}
 
-With its 10 000 attributes it is high dimensional. Therefore Feature Selection is important, but features can not be interpreted by hand, because there are too many. In order to find good features algorithms from scipy were used as described in section \ref{amazon-feature-selection}.
+With its 10 000 attributes it is high dimensional.
+Therefore Feature Selection is important, but features can not be interpreted by hand, because there are too many.
+In order to find good features algorithms from scipy were used as described in section \ref{fig:amazon-feature-selection}.
 
 \subsection{Characteristics of Target value}
 The target classes are the different authors of the reviews.
@@ -73,7 +72,7 @@ However it evaluated much faster, so first impressions could be derived more qui
 Preprocessing with MinMax scalar improved results by around 5\% as seen in figure \ref{fig:amazon-knn-comparison}.
 Scaling with mean and variance did lead to better results, but it was not as good as the min max scaler.
 
-\image{amazon/plots/knn_comparison.png}{Comparison of the best estimators with preprocessing and without preprocessing}{fig:amazon-knn-comparison}
+\image{amazon/plots/knn_comparison.png}{Comparison of the best estimators with preprocessing and without preprocessing}{\label{fig:amazon-knn-comparison}}
 
 % \begin{figure}[H]
 %   \begin{center}
@@ -95,7 +94,7 @@ As seen in Figure \ref{fig:amazon-rf-comparison}, a low maximum features yielded
 With 34 estimators and 30\% max features, a score of 60\% was accomplished which is almost as good as the multi layer perceptron.
 However it took significantly longer to evaluate than KNN.
 
-\image{amazon/plots/rf_comparison.png}{Comparison of random forest parameters}{fig:amazon-rf-comparison}
+\image{amazon/plots/rf_comparison.png}{Comparison of random forest parameters}{\label{fig:amazon-rf-comparison}}
 
 % \begin{figure}[H]
 %   \begin{center}
@@ -108,10 +107,10 @@ However it took significantly longer to evaluate than KNN.
 \subsection{Multi-Layer Perceptron Classifier}
 
 For MLP grid search with a small search space was used, because testing out different hyperparameters is not feasable, because it takes a lot of time.`
-As shown in figure \ref{fig:mlp-comparison} choosing different activation functions does hardly make any difference.
+As shown in figure \ref{fig:amazon-mlp-comparison} choosing different activation functions does hardly make any difference.
 A score of 72.8 \% accuracy was obtained in kaggle by using 2000 selected features with ${\chi}^2$ tests, relu as activation and one hidden layer with 100 neurons.
 
-\image{amazon/plots/mlp_comparison.png}{Comparison of mlp parameters}{fig:mlp-comparison}
+\image{amazon/plots/mlp_comparison.png}{Comparison of mlp parameters}{\label{fig:amazon-mlp-comparison}}
 
 % \begin{figure}[H]
 %   \begin{center}
@@ -123,42 +122,50 @@ A score of 72.8 \% accuracy was obtained in kaggle by using 2000 selected featur
 
 \subsection{Conclusion}
 
+Scaling and feature selection improve results quite a bit. While scaling does not affect the random forest classifier, it is important for both k nearest neighbors and the multi layer perceptron. Feature selection is important for all classifiers. Support Vector machines were tried out as well, because they are suited for high dimensional data, but gave a maximum score of 63.46 \%
 
-
-\begin{table}[H]
+\begin{table}[ht]
 \begin{center}
 \begin{tabular}{|l|l|l|}
 \hline
                        & Preprocessing & No-Preprocessing \\ \hline
 KNeighborsClassifier   & 0.4413        & 0.4000           \\ \hline
 RandomForestClassifier & 0.6026        & 0.5840           \\ \hline
-MLPClassifier          & 0.9666        & 0.9866           \\ \hline
+MLPClassifier          & 0.6746        & 0.6133           \\ \hline
 \end{tabular}
 \caption{Comparision of accuracy of different techniques with- and without preprocessing}
 \end{center}
 \end{table}
 
-\begin{table}[H]
+Holdout yields different results than cross validation. As cross validation takes a lot of time it is feasable to use them anyways for parameter optimization, but note that their results differ up to 5 \%.
+
+\begin{table}[ht]
 \begin{center}
 \begin{tabular}{|l|l|l|}
 \hline
                        & Holdout & Cross Validation \\ \hline
 KNeighborsClassifier   & 0.4066  & 0.4413           \\ \hline
-RandomForestClassifier & 0.5333  & 0.6026           \\ \hline
-MLPClassifier          & 0.6386  & 0.9866           \\ \hline
+RandomForestClassifier & 0.5333  & 0.5946           \\ \hline
+MLPClassifier          & 0.6133  & 0.6746           \\ \hline
 \end{tabular}
 \caption{Comparision of accuracy of holdout versus cross-validation}
 \end{center}
 \end{table}
 
-\begin{table}[H]
+Accuracy is the correct performance metric when evaluating how good this goal was achived. 
+Accuracy is the most useful measurement for the amazon dataset, because the most interesting goal is to find out which review is written by which author.
+The runtime is the average runtime it took to fit the train data for 10 folds.
+The MLP classifier was faster than the random forest tree, because it was simplified in order to run faster and keep it from overfitting.
+Other than that knn was the fastest, because it is a lazy learner.
+
+\begin{table}[ht]
 \begin{center}
 \begin{tabular}{|l|l|l|l|l|l|}
 \hline
                        & Accuracy & Precision & Recall & F1     & Runtime (sec) \\ \hline
 KNeighborsClassifier   & 0.4333   & 0.3847    & 0.4356 & 0.3805 & 30.987        \\ \hline
-RandomForestClassifier & 0.9600   & 0.9644    & 0.9600 & 0.9597 & 0.1947        \\ \hline
-MLPClassifier          & 0.9800   & 0.9848    & 0.9800 & 0.9793 & 1.5557        \\ \hline
+RandomForestClassifier & 0.5946   & 0.5400    & 0.5893 & 0.5393 & 481.152       \\ \hline
+MLPClassifier          & 0.6986   & 0.6604    & 0.6930 & 0.6522 & 87.990        \\ \hline
 \end{tabular}
 \caption{Comparision of different performance metrics and runtimes}
 \end{center}

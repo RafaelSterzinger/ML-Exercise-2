@@ -203,11 +203,8 @@ best_estimator_p = mlp.best_estimator_
 
 print('Best Mean Score Without Preprocessing', mlp.best_score_, 'Model', mlp.best_estimator_)
 mlp_results = pd.DataFrame(mlp.cv_results_)
-# %% not pre processed
-
 
 # %%
-
 sns.barplot('param_c__hidden_layer_sizes', 'mean_test_score', 'param_c__activation', data=mlp_results)
 plt.savefig('plots/mlp_comparison.png')
 plt.show()
@@ -243,24 +240,6 @@ best_estimator = mlp1.best_estimator_
 
 print('Best Mean Score With Preprocessing', mlp1.best_score_, 'Model', mlp1.best_estimator_)
 mlp1_results = pd.DataFrame(mlp1.cv_results_)
-
-# %%
-
-sns.barplot('param_mlpclassifier__hidden_layer_sizes', 'mean_test_score', 'param_mlpclassifier__activation', data=mlp1_results)
-plt.savefig("plots/mlp_p_comparision.png")
-plt.show()
-
-plotdata = mlp_results[mlp_results['param_hidden_layer_sizes'] == (100,)]
-temp = mlp1_results[mlp1_results['param_mlpclassifier__hidden_layer_sizes'] == (100,)]
-temp = temp.rename(columns={'param_mlpclassifier__hidden_layer_sizes': 'param_hidden_layer_sizes',
-                            'param_mlpclassifier__activation': 'param_activation'})
-plotdata = plotdata.append(temp)
-plotdata['param_hidden_layer_sizes'] = ['a', 'a', 'a', 'a', 'b', 'b', 'b', 'b']
-
-sns.barplot('param_activation', 'mean_test_score', 'param_hidden_layer_sizes', data=plotdata)
-plt.legend(['Without Preprocessing', 'With Preprocessing'])
-plt.savefig("plots/mlp_np_p_comparision.png")
-plt.show()
 
 # %% MLP Scorer and Time
 results = cross_validate(best_estimator, X, y, scoring=scoring, cv=10)
