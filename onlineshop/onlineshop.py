@@ -290,8 +290,8 @@ print('Best Score Hold Out Recall', recall_score(y_test, y_pred))
 print('Best Score Hold Out', best_estimator.score(X_test, y_test))
 
 
-#%% 1.3 MLP CV approx params
-mlp_param_grid = {
+#%% 1.3 MLP CV approx params        DEPRECATED
+'''mlp_param_grid = {
     'hidden_layer_sizes': [(3, 4, 3), (7, 5, 3), (3, 3, 7)],
     'activation': ['tanh', 'relu'],
     'solver': ['sgd', 'adam'],
@@ -300,25 +300,27 @@ mlp_param_grid = {
 }
 
 mlp = RandomizedSearchCV(MLPClassifier(max_iter=5000, random_state=random_state), mlp_param_grid, cv=2,
-                         n_jobs=-1, random_state=random_state,scoring=scoring, refit= refit)
+                         n_jobs=-1, random_state=random_state, verbose=True)#,scoring=scoring, refit= refit)
 
 mlp.fit(data_encoded[top12_attributes], data_encoded[target])
 print('Best Mean Score Without Preprocessing', mlp.best_score_, 'Model', mlp.best_estimator_)
 
 
+best_estimator = mlp.best_estimator_
+'''
 
 
-
-#%% 1.3 MLP CV NP
+#%% 1.3 MLP CV NP       RECALL ZERO
 mlp_param_grid = {
-    'hidden_layer_sizes': [(3, 4, 3), (7, 5, 3), (3, 3, 7)],
+    'hidden_layer_sizes': [(7, 3, 5, 5, 10)],#[(3, 4, 3), (7, 5, 3), (3, 3, 7)],
     'activation': ['tanh', 'relu', 'logistic', 'identity'],
 }
 
 mlp = GridSearchCV(
-    MLPClassifier(alpha=0.001, solver='sgd', learning_rate='constant', max_iter=50000, random_state=random_state), mlp_param_grid,
+    MLPClassifier(alpha=0.001, solver='adam', learning_rate='constant', max_iter=3000, random_state=random_state), mlp_param_grid,
     cv=3,
-    n_jobs=-1)#, scoring=scoring, refit=refit)
+    verbose=True,
+    n_jobs=-1, scoring = 'recall')#, scoring=scoring, refit=refit)
 
 mlp.fit(data_encoded[top12_attributes], data_encoded[target])
 #best_estimator = mlp.best_estimator_
@@ -326,12 +328,40 @@ mlp.fit(data_encoded[top12_attributes], data_encoded[target])
 print('Best Mean Score Without Preprocessing', mlp.best_score_, 'Model', mlp.best_estimator_)
 mlp_results = pd.DataFrame(mlp.cv_results_)
 
-sns.barplot('param_hidden_layer_sizes', 'mean_test_score'#recall'
-            , 'param_activation', data=mlp_results)
-plt.show()
+#sns.barplot('param_hidden_layer_sizes', 'mean_test_score'#recall'
+ #           , 'param_activation', data=mlp_results)
+#plt.show()
+
+# %% 1.3 MLP CV Preprocessing
+solver = ['sgd', 'adam']
+for sol in solver:
+    classifier_pipeline = make_pipeline(preprocessing.MinMaxScaler(),
+                                        MLPClassifier(alpha=0.001, solver=sol, learning_rate='adaptive', max_iter=3000,  # solver = 'sgd' performs much worse
+                                                      random_state=random_state))
+
+    param_grid = {
+        'mlpclassifier__hidden_layer_sizes': [(3, 4, 3), (7, 5, 3, 7), (7, 3, 5, 5, 10), (15, 30, 15), (30, 30, 30)],#[(15,15,15),(30, 15, 30), (15, 30, 15), (30, 30, 30)], #[(3, 4, 3), (7, 5, 3), (3, 3, 7)], #
+        'mlpclassifier__activation': ['tanh', 'relu', 'logistic', 'identity'],
+    }
+
+    mlp1 = GridSearchCV(classifier_pipeline, param_grid, cv=3,
+                        n_jobs=-1, verbose=True, scoring='recall')
+
+    mlp1.fit(data_encoded[top12_attributes],data_encoded[target])
+    best_estimator = mlp1.best_estimator_
+
+    print('Best Mean Score With Preprocessing', mlp1.best_score_, 'Model', mlp1.best_estimator_, 'Solver', sol)
+    mlp1_results = pd.DataFrame(mlp1.cv_results_)
+
+    sns.barplot('param_mlpclassifier__hidden_layer_sizes', 'mean_test_score', 'param_mlpclassifier__activation', data=mlp1_results)
+    #plt.ylim(0.8, 0.9)
+    plt.ylim(0, 0.7)
+    plt.savefig("plots/mlp_solver_comparison" + sol + ".png")
+    plt.show()
+best_estimator = mlp1.best_estimator_
+
 
 # %% 2.3 MLP Scorer and Time
-best_estimator = mlp.best_estimator_
 
 results = cross_validate(best_estimator, data_encoded[top12_attributes], data_encoded[target], scoring=scoring, cv=5)
 print('Time', results['fit_time'].mean(), 'Accuracy', results['test_accuracy'].mean(), 'Precision',
