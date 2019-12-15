@@ -157,6 +157,7 @@ Accuracy is the most useful measurement for the amazon dataset, because the most
 The runtime is the average runtime it took to fit the train data for 10 folds.
 The MLP classifier was faster than the random forest tree, because it was simplified in order to run faster and keep it from overfitting.
 Other than that knn was the fastest, because it is a lazy learner.
+As expected MLP had the highest accuracy.
 
 \begin{table}[ht]
 \begin{center}
@@ -165,7 +166,7 @@ Other than that knn was the fastest, because it is a lazy learner.
                        & Accuracy & Precision & Recall & F1     & Runtime (sec) \\ \hline
 KNeighborsClassifier   & 0.4333   & 0.3847    & 0.4356 & 0.3805 & 30.987        \\ \hline
 RandomForestClassifier & 0.5946   & 0.5400    & 0.5893 & 0.5393 & 481.152       \\ \hline
-MLPClassifier          & 0.6986   & 0.6604    & 0.6930 & 0.6522 & 87.990        \\ \hline
+MLPClassifier          & 0.7000   & 0.6611    & 0.6940 & 0.6534 & 96.535        \\ \hline
 \end{tabular}
 \caption{Comparision of different performance metrics and runtimes}
 \end{center}
