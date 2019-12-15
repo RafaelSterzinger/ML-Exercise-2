@@ -42,19 +42,19 @@ The Online Shoppers Purchasing Prediction dataset fits somewhere in between the 
 \end{itemize}
 
 \subsection{General Preprocessing} \label{GenPrepro}
-The \textbf{original} dataset contained 14 missing values which could easily be resolved by just removing the affected rows. Another thing that could be done, would be to replace the ratio and interval attributes with the mean and the ordinal and the categorical attributes with the median. On the UCI Machine Learning Repository we were able to find this dataset which contained no missing values, hence no further action was needed. \\
+The \textbf{original} dataset contained 14 missing values which could easily be resolved by just removing the affected rows. Another thing that could be done, would be to replace the ratio and interval attributes with the mean and the ordinal and the categorical attributes with the median. On the UCI Machine Learning Repository we were able to find a version of this dataset which contained no missing values, hence no further action was needed. \\
 \newline
-As there are 8 categorical values these need to be encoded to be available for our Classifiers. Instead of using Label Encoding where higher values could be biased we used One Hot Encoding which added about 40 features to our already existing ones.
+As there are 8 categorical values these need to be encoded to be available for our Classifiers. Instead of using Label Encoding, where higher values could be biased, we used One Hot Encoding. This added about 40 features to our already existing ones.
 
 \subsection{Characteristics of Target Value}
 While accuracy is a great measure for classification problems when one has symmetric datasets (amount of false positves and false negatives is approximately the same), it is not optimal for our model.
-As can be seen in \secref{fig:rev_box} only 15.5\% (1908) were positive class samples that ended with shopping and the rest (10422) did not end with shopping. It is more important to not falsely identify Buyers as Non-Buyers. For example we would rather focus on more people than necessary instead of potentially losing profit and customers. Due to this we chose Recall as our primary performance metric when optimizing the different Classifiers as there is a high with False Negatives and our data is skewed.
+As can be seen in \secref{fig:rev_box} only 15.5\% (1908) were positive class samples that ended with shopping and the rest (10422) did not end with shopping. It is more important to not falsely identify Buyers as Non-Buyers. For example we would rather focus on more people than necessary instead of potentially losing profit and customers. Due to this we chose Recall as our primary performance metric when optimizing the different Classifiers as there is a high cost of False Negatives and our data is skewed.
 \image{plots/revenue_boxplot.png}{Target Class Distribution}{\label{fig:rev_box}}
 
 \subsection{Feature Selection}
 % Heatmap Correlation
 
-With now over 55 attributes it is important to remove features and thus random noise which could lead to overfitting to the training data. Reducing the dimensions also allows us to reduce training time and thus lets us train with more different parameters. Looking at the correlation matrix in \secref{fig:heat} one can see features that are correlated such as PageValues, ExitRates, ProductRelated,ProductRelated Duration BounceRates, etc.
+Now having 57 attributes, it is important to remove features and thus random noise which could lead to overfitting to the training data. Reducing the dimensions also allows us to reduce training time and thus lets us train with more different parameters. Looking at the correlation matrix in \secref{fig:heat} one can see features that are correlated such as PageValues, ExitRates, ProductRelated,ProductRelated Duration BounceRates, etc.
 \image{plots/heatmap.png}{Heatmap of the different attributes of the Online Shopping Prediction dataset}{\label{fig:heat}} \\
 \newline
 Using Scikitlearn's SelectKBest and RandomForestClassifier we analysed the features, correlating with the Revenue target, more in depth. \\
@@ -139,12 +139,31 @@ Looking at the different n\_estimators in \secref{fig:rf_n_estim} we can see tha
 As trees are very robust and thus do not need Preprocessing most of the time, applying a MinMaxScaler to our data actually led to worse values which is visualized in \secref{fig:rfc_pre}.
 
 \subsection{Multi-Layer Perceptron Classifier}
-\image{plots/mlp_np_comparision.png}{Comparison of different models and activation functions}{\label{mlp}}
+Finally, taking a look at the more sophisticated Multi-Layer Perceptron, we have tried out a few different parameter settings, firstly manually configuring them and then iterating over a few different combinations with GridSearch. The paremeters we have looked at were: hidden layer sizes (layer and neuron amount), activation functions, different solvers, learning rate and the alpha penalty regularization parameter.
+
+
+\begin{figure}
+\begin{floatrow}
+\ffigbox[\FBwidth][][]{\caption{Comparison of different \textit{hidden\_layer\_sizes} with stochastic gradient descent optimizer}}
+    {\includegraphics[width=6cm]{plots/mlp_solver_comparisonsgd.png}\label{fig:mlp_sgd}}
+\ffigbox[\FBwidth][][]{\caption{Comparison of different \textit{hidden\_layer\_sizes} with adam optimizer}}
+    {\includegraphics[width=6cm]{plots/mlp_solver_comparisonadam.png}\label{fig:mlp_adam}}
+\end{floatrow}
+\end{figure}
+As can be seen in \secref{fig:mlp_sgd}, using the wrong weight optimizer (stochastic gradient descent in this case) leads to much worse recall scores, with some of them even being zero. Using the stochastic gradient descent version adam (by Kingma, Diederik, and Jimmy Ba) we were able to achieve much better and more consistent scores.
+
+On the other hand the difference between having a constant learning rate of 0.001 and an adaptive one (divide learning rate by 5 if the training loss does not decrease for 2 consecutive epochs) was negligible, with the adaptive one being only 0.02 better in the best case. The same goes for different alpha values.
+
+What can be observed is that using tangens hyperbolicus and Relu provides far better results no matter the layer sizes. The identity function performed much worse, achieving only a recall score of around 0.4 while the others were able to achieve scores of above 0.6 for at least one parameter setting. On the other hand, while the logistic activation function even was able to achieve a better score than the tangens hyperbolicus (hidden layer sizes (3,4,3)), it performed much worse in a few setting  (hidden layer sizes (7, 3, 5, 5, 10) or (15, 30, 15)) where the others stayed consistent.
+
+It can be said, that while the hidden layer sizes obviously matter, the activation function played a much bigger role for getting the best values. On average for this dataset relu performed the best, followed by tangens hyperbolicus with logistic and identity performing the worst.
+
 
 \subsection{Conclusion}
-
 \subsubsection{Preprocessing vs No-Preprocessing}
-To be able to look at more than just the numerical values, \texit{No-Preprocessing} in this case stands for the data after the general Preprocessing (One Hot Encoding, remove Missing values, ...) mentioned in \secref{GenPrepro} has been done. We compare the unpreprocessed data with the data after MinMax scaling and after introducing a new feature by weighting the outliers.
+To be able to look at more than just the numerical values, \texit{No-Preprocessing} in this case stands for the data after the general Preprocessing (One Hot Encoding, remove Missing values, ...), mentioned in \secref{GenPrepro}, has been done. We compare the unpreprocessed data with the data after MinMax scaling.\\% and after introducing a new feature by weighting the outliers.
+\newline
+Looking at \secref{tab:onl_pre_no_pre} we can see that using a MinMax Scalar only works for the K Nearest Neighbors Classifier and the Multi-Layer Perceptron. As the Random Forest Classifier does not work with differences,  the ranges of the different attributes does not matter. Hence using a MinMaxScaler actually leads to worse results for the Random Forest Classifier
 
 % TODO
 
@@ -153,11 +172,12 @@ To be able to look at more than just the numerical values, \texit{No-Preprocessi
 \begin{tabular}{|l|l|l|}
 \hline
                        & Preprocessing & No-Preprocessing \\ \hline
-KNeighborsClassifier   & x        & x           \\ \hline
-RandomForestClassifier & x        & x           \\ \hline
-MLPClassifier          & x        & x           \\ \hline
+KNeighborsClassifier   & 0.5089        & 0.4219          \\ \hline
+RandomForestClassifier & 0.5906        & 0.6305           \\ \hline
+MLPClassifier          & 0.6750        & 0.6105           \\ \hline
 \end{tabular}
-\caption{Comparision of accuracy of different techniques with- and without preprocessing}
+\caption{Recall comparison with- and without MinMax Scaling}
+\label{tab:onl_pre_no_pre}
 \end{center}
 \end{table}
 
@@ -171,11 +191,15 @@ By comparing the achieved holdout and cross validation values we can see that th
                        & Holdout & Cross Validation \\ \hline
 KNeighborsClassifier   & 0.5236  & 0.5089           \\ \hline
 RandomForestClassifier & 0.5863  & 0.5817           \\ \hline
-MLPClassifier          & x  & x           \\ \hline
+MLPClassifier          & 0.5681  & 0.6750           \\ \hline
 \end{tabular}
 \caption{Comparision of accuracy of holdout versus cross-validation}
 \end{center}
 \end{table}
+
+%
+\subsubsection{Different Performance Metrics}
+To analyse how the different classifiers compare we have tried to optimize the models in regards to recall as mentioned above. Using GridSearchCV's best\_estimator we were able to find the optimal parameter settings.
 
 \begin{table}[h]
 \begin{center}
@@ -184,7 +208,7 @@ MLPClassifier          & x  & x           \\ \hline
                        & Accuracy & Precision & Recall & F1     & Runtime (sec) \\ \hline
 KNeighborsClassifier   & 0.8525   & 0.5483  & 0.5089 & 0.5213 & 0.043416        \\ \hline
 RandomForestClassifier & 0.8982   & 0.7187    & 0.5817   & 0.6408   & 1.0573        \\ \hline
-MLPClassifier          & x   & x    & x   & x   & x        \\ \hline
+MLPClassifier          & 0.8906   & 0.6761    & 0.5828   & 0.6241   & 4.2141        \\ \hline
 \end{tabular}
 \caption{Comparison of different performance metrics and runtimes}
 \end{center}
