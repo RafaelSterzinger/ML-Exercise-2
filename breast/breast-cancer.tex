@@ -6,7 +6,7 @@ The dataset is is used to classify wheather a tumour is harmful or not.
 
 \begin{itemize}
 \item No missing values
-\item binary target class (B and M)
+\item Binary target class (B and M)
 \item Only rational features
 \item 30 attributes (disregarding id)
 \item 285 samples
@@ -33,12 +33,12 @@ While 96 of the samples are of type M, 189 are of type B.
 % \end{figure}
 
 \subsection{Feature Selection}
-First different plots to visualize the data were made.
-An example can be seen in Figure \ref{fig:breast-violin}, it can be observed that the fractalDimensionMean (the feature on the right) is bad for classification while the radiusMean could be useful as its classes are differently distributed.
-Additionaly boxplots were made which can be observed in Figure \ref{fig:breast-boxplot}.
+First, different plots to visualize the data were made.
+An example can be seen in Figure \ref{fig:breast-violin}, where it can be observed that the fractalDimensionMean (the feature on the right) is bad for classification while the radiusMean could be more useful as its classes are differently distributed and the mean differs significantly.
+Additionally, boxplots were made, which can be observed in Figure \ref{fig:breast-boxplot}.
 Boxplots give information about outliers, but the distribution can not be observed as clearly as with violin plots.
-Often attributes contain the same information, this can be checked by calculating the correlation of two attributes or graphically interpret their scatter plot as shown in Figure \ref{fig:breast-correlation}.
-These plots were analyzed and the best attributes were selected.
+Often attributes contain the same information, which can be checked by calculating the correlation of two attributes or graphically interpret their scatter plot as shown in Figure \ref{fig:breast-correlation}.
+These plots were analysed and the findings were used afterwards to select the best attributes.
 
 \image{breast/plots/violinplot.png}{Violine plot of the first 10 features that were scaled by MinMax}{\label{fig:breast-violin}}
 \image{breast/plots/boxplot.png}{Boxplot of the first 10 features that were scaled by MinMax}{\label{fig:breast-boxplot}}
@@ -52,18 +52,19 @@ These plots were analyzed and the best attributes were selected.
 %   \end{center}
 % \end{figure}
 
-Furthermore, recursive feature selection with random forest was performed, as seen in Figure \ref{fig:breast-feature-selection}, 15 to 30 features work best.
+Furthermore, recursive feature selection with the Random Forest Classifier was performed as well, which can be observed in Figure \ref{fig:breast-feature-selection}. The results showed that 15 to 30 features work best, which confirms later findings, that feature selection does not necessarily improve performance, since there are only 30 features to select.
 
 \image{breast/plots/rf_feature_selection.png}{Recursive Feature selection}{\label{fig:breast-feature-selection}}
 
 \subsection{K Nearest Neighbors Classifier}
 
-For k nearest neighbor classifier grid search with cross validation was used to test different Ks from 1 to 30 and the euclidean, chebyshev and manhattan metrics.
-As seen in Figure \ref{fig:breast-knn-metrics} euclidean works best for preprocessed data, wheras manhattan is better for non preprocessed data.
-Concerning the amount of neighbours included in the majority vote, preprocessing works best with a \textit{k} of 10 and weighted distance and non preprocessed with a \textit{k} of 5 uniform weighted distance.
+For the K Nearest Neighbour Classifier a grid search with cross validation was used to test different \textit{k}'s from 1 to 30 and different metrics, such as the Euclidean, Chebyshev and Manhattan distance.
+
+As seen in Figure \ref{fig:breast-knn-metrics} Euclidean works best for preprocessed data, whereas Manhattan is better for non preprocessed data.
+Concerning the amount of neighbours included in the majority vote, preprocessing works best with a \textit{k} of 10 and weighted distance and non preprocessed with a \textit{k} of 5 and uniform weighted distance.
 Comparing the performance of two estimators, preprocessing had a huge impact, which resulted in a 4\% higher accuracy, archiving a performance of 98.6\%.  
 
-Intrestingly, chebychev as a weight metric performs significantly worse compared to the others, espacially with a higher k.
+Interestingly, Chebychev as a distance metric performs significantly worse compared to the others, especially with a higher \textit{k}.
 
 \image{breast/plots/knn_p_comparision.png}{Comparison of metrics}{\label{fig:breast-knn-metrics}}
 % \begin{figure}[H]
@@ -88,8 +89,8 @@ The previously explained feature selection unfortunately made no improvement, it
 \subsection{Random Forest Classifier}
 
 First a randomized search with cross validation was performed to get a first impression for good parameters for the random forest classifier.
-It was discovered that the \textit{min\_sample\_split} works best if it is set to 0.04, i.e. the fraction of the minimum samples required to split an internal node is 0.04.
-Using the previously obtained information about the parameters a grid search with cross validation was performed.
+It was discovered that the \textit{min\_sample\_split} works best if it is set to 0.04, e.g. the fraction of the minimum samples required to split an internal node is 0.04.
+Using the previously obtained information about the parameters, a grid search with cross validation was performed.
 It was found that a score of 97.89\% can be obtained by using a maximum of 10\% of the features for an estimator and 47 estimators in total.
 
 \image{breast/plots/rf_np_comparision.png}{Comparison of Random Forest by estimator count and max features}{\label{fig:breast-rf-comparison}}
@@ -99,7 +100,7 @@ It was found that a score of 97.89\% can be obtained by using a maximum of 10\% 
 For the Multi-Layer Perceptron Classifier a grid search was performed.
 Different layer architectures and activation functions were altered.
 As seen in Figure \ref{fig:breast-mlp-comparison}, the best results were obtained with the activation function relu and 3 hidden layers with 30, 15 and 30 neurons.
-However the results are mostly the same but for the logistic (sigmoid) activation function, this is probably due to vanishing gradients.
+However the results are mostly the same. However  this is not the case for the Sigmoid or logistic activation function, which is probably due to vanishing gradients.
 
 \image{breast/plots/mlp_p_comparision.png}{comparison of layer sizes and activation functions}{\label{fig:breast-mlp-comparison}}
 
@@ -112,7 +113,7 @@ Interestingly the gradients did not vanish for the logistic activation function 
 
 Preprocessing leads to better results for all classifiers.
 However feature selection leads to worse results.
-Therefore the data should only be scaled and all features should be used for classification.
+Therefore the data should only be scaled and all features should be used for classification. Surprisingly, for the breast cancer dataset, K Nearest Neighbours performed better than the MLP in terms of accuracy.
 
 \begin{table}[H]
 \begin{center}
@@ -143,14 +144,13 @@ MLPClassifier          & 0.9824  & 0.9858           \\ \hline
 \end{center}
 \end{table}
 
-The best result was obtained by the k nearest neighbors classifier with 98.62 \% and the second best by the MLP classifier with 98.58 \%.
-However on Kaggle knn only achived a score of 95.29 \% and MLP achived a score of 97.64 \%, therefore MLP probably works better.
-On Kaggle more training data can be used and this can change the results significantly.
-Regarding runtime knn classifier is the fastest, followed by random forest classifier.
-The multi layer perceptron takes the longest to train.
-Classifing a cancerous tumour, i.e. a malignant as a non cancerous tumour, i.e. benign, could be fatal for the patient.
-Therefore the best performance metric is the one that minimizes false negatives, because of that Recall is the best performance metric for this task.
-This also means that knn is the best classifier for this task, however more samples should be used for a better evaluation.
+The best result was obtained by the K Nearest Neighbours classifier with 98.62\% and the second best by the MLP classifier with 98.58\%.
+However on kaggle, KNN only archived a score of 95.29\%, whereas the MLP archived a score of 97.64\%. The reason behind this might be the fact, that on kaggle more training data can be used and this can change the results significantly.
+Regarding the runtime KNN classifier is the fastest, followed by the random forest classifier and then the multi layer perceptron, which takes the longest to train.
+
+Concerning the classification of a cancerous tumour cells, it is not an easy task, since wrong prediction can be fatal for the patient.
+
+Therefore, the correct prediction of a malignant as a non cancerous tumour is not that important as the classification of a benign cell. Thus, the best performance metric is the one that minimizes false negatives, which is the case, when using Recall as a performance metric, which also means that KNN is the best classifier in our case for this task, however more samples should be used for a better evaluation, hence a score of 98.58\% is still not sufficient.
 
 \begin{table}[H]
 \begin{center}
