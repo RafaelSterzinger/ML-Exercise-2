@@ -1,6 +1,6 @@
 \documentclass{article}
 
-\newcommand{\size}{0.8\textwidth}
+\newcommand{\size}{0.7\textwidth}
 
 \newcommand{\image}[3]{
 \begin{figure}
@@ -12,12 +12,30 @@
 \end{figure}
 }
 
+\newcommand{\multimage}[6]{
+\begin{figure}
+\begin{center}
+\begin{subfigure}{.45\textwidth}
+\includegraphics[width=1.0\linewidth]{#1}
+\caption{#2}
+#3
+\end{subfigure}
+\begin{subfigure}{.45\textwidth}
+\includegraphics[width=1.0\linewidth]{#4}
+\caption{#5}
+#6
+\end{subfigure}
+\end{center}
+\end{figure}
+}
+
 \usepackage{graphicx}
 \usepackage[utf8]{inputenc}
 \usepackage[official]{eurosym}
 \usepackage[font=small,labelfont=bf]{caption}
 \usepackage[margin=3cm]{geometry}
 \usepackage{chngpage}
+\usepackage{subcaption}
 
 
 % New Packages
