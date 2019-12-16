@@ -60,7 +60,6 @@ The best performance of KNN was 44.13\% which is poor in comparison to the Rando
 This is probably due to the small sample size in comparison to the target class size.
 However, it evaluates much faster, and therefore a first impressions could be derived quicker, when comparing it to other techniques, which is no surprise since K Nearest Neighbors is a lazy learner.
 
-\image{amazon/plots/knn_metrics.png}{Comparison of knn metrics}{\label{fig:amazon-knn-metric-comparison}}
 % \begin{figure}[H]
 %   \begin{center}
 %     \includegraphics[width=\linewidth]{amazon/plots/knn_metrics.png}
@@ -72,7 +71,7 @@ However, it evaluates much faster, and therefore a first impressions could be de
 Preprocessing with MinMax scalar improved results by around 5\%, as seen in Figure \ref{fig:amazon-knn-comparison}.
 Scaling with mean and variance lead to better results as well, but it was not as good as the MinMax scaler.
 
-\image{amazon/plots/knn_comparison.png}{Comparison of the best estimators with preprocessing and without preprocessing}{\label{fig:amazon-knn-comparison}}
+\multimage{amazon/plots/knn_metrics.png}{Comparison of knn metrics}{\label{fig:amazon-knn-metric-comparison}}{amazon/plots/knn_comparison.png}{Comparison of the best estimators with preprocessing and without preprocessing}{\label{fig:amazon-knn-comparison}}
 
 % \begin{figure}[H]
 %   \begin{center}

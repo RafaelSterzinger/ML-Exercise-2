@@ -1,9 +1,9 @@
 \documentclass{article}
 
-\newcommand{\size}{0.7\textwidth}
+\newcommand{\size}{0.6\textwidth}
 
 \newcommand{\image}[3]{
-\begin{figure}
+\begin{figure}[H]
 \begin{center}
 \includegraphics[width=\size]{#1}
 \caption{#2}
@@ -13,7 +13,7 @@
 }
 
 \newcommand{\multimage}[6]{
-\begin{figure}
+\begin{figure}[H]
 \begin{center}
 \begin{subfigure}{.45\textwidth}
 \includegraphics[width=1.0\linewidth]{#1}
@@ -25,6 +25,7 @@
 \caption{#5}
 #6
 \end{subfigure}
+\caption{}
 \end{center}
 \end{figure}
 }
@@ -160,17 +161,17 @@ Amazon                                                                & 0.43 & 0
 \end{center}
 \end{adjustwidth}
 \end{table}
-\subsubsection{Parameter Sensitivity}
+\subsection{Parameter Sensitivity}
 Analysing the sensitivity of the classifiers in regards to parameter changes, we have found that simply changing one parameter sometimes could completely turn the result into another direction. This was especially observable for the MLP Classifier where simply choosing adam as the optimizer instead of the regular stochastic gradient descent turned a recall score from 0.2 to 0.675 (see \secref{fig:mlp_sgd} and \secref{fig:mlp_adam}). On top of that the MLP was very sensitive in regards to the activation function with tangens hyperbolicus generally providing the best results and the logistic activation function generally performing the worst.\\
 We have found that a higher amount of n\_estimators, i.e. trees, usually leads to a better performance up to a certain point. This can be explained by the fact that many trees help to create an average which does not overfit to certain scenarios.\\
 In regards to K Neighbors we have seen that we tend to get the best results with Euclidean and Manhattan as the distance metric.  
 Another thing that could be observed for the K Neighbors Classifier, was that preprocessing the data in general also lead to an increase of k, since with the scaled ranges  more datapoints could now be considered. \\
 \newline
 %TODO Preprocessing vs No-Preprocessing General Tabelle
-\subsubsection{Preprocessing Effects}
+\subsection{Preprocessing Effects}
 Comparing the effects of Preprocessing, we see that the K Neighbors and MLP Classifier seemed to generally benefit the most from Scaling (excluding Iris since it only has a few features) while it did not have too much of of an impact on the Random Forest Classifier and even lead to a worse score for the Online Shopping Predictions dataset. For the Iris dataset, preprocessing lead to a decrease in performance for the K Neighbors Classifier and the MLP Classifier.
 
-\subsubsection{Runtime}
+\subsection{Runtime}
 While the amount of samples played a big role in the runtimes of the different classifiers, the amount of selected features had the biggest impact. Obviously the number of samples affects how long/often the model needs to be trained and updated (MLP), but the number of features affect how long it takes to calculate the comparisons to the other datasets and how long one 'calculation cycle' is. Iris and Breast Cancer which contained a similar amount of samples/features and also had very similar scores also seemed to  have pretty much the exact same fitting times. Increasing the samplesize to around 12.000 (Online Shopping with around 40 times more samples than Breast Cancer's 300) led to a runtime increase by a factor of 30 for K Neighbors, 15 for Random Forest and 5 for MLP.\\ On the other hand increasing the feature amount by a factor of 100 (we selected over a thousand features for the Amazon dataset and only around 15 for Breast Cancer) we saw a runtime increase by a factor of 20.000 for K Neighbors, 7.000 for Random Forest and 100 for MLP (MLP: less features or else it would take too long). 
 Comparing the high number of samples of the Online Shopping Predictions Dataset with the high number of features of the Amazon dataset runtime ratios of 700, 450 and 20 can be noted. Thus it seems that the runtime of K Neighbors seemed to be affected the most by an increase of samples/features, followed by Random Forest and then MLP. \\
 \newline

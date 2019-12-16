@@ -22,11 +22,10 @@ A comparison of the different classifiers in sepal width versus sepal length or 
 \subsection{K Nearest Neighbours Classifier}
 For K Nearest Neighbours a \textit{GridSearchCV} was carried out, where especially different \textit{k's} and metrics have been altered. Before that, a more general search has shown, that uniform weights perform better on the Iris dataset. Without preprocessing the best estimator is an Euclidean classifier, where \textit{k} equals 13. Comparing the different metrics, Chebyshev peaks earlier than euclidean, whereas Euclidean generally performed the best and Manhattan the worst (Figure \ref{knn}). 
 
-\image{iris/plots/knn_np_comparision.png}{K Nearest Neighbours with different distance metrics}{\label{knn}}
 
 With regards to the question about the effect of preprocessing, Figure \ref{prepro} shows clearly, that on the Iris dataset, preprocessed data performs worse than non preprocessed. Figure \ref{prepro} compares each best estimator for preprocessed and non preprocessed. Both estimators use the Euclidean distance metric and differ only in \textit{k}, where for preprocessing \textit{k=30} and for non preprocessing \textit{k=13} performed the best.  For preprocessing solely a \textit{MinMaxScaler} was used.
 
-\image{iris/plots/knn_np_p_comparision.png}{Preprocessing versus No-Preprocessing}{\label{prepro}}
+\multimage{iris/plots/knn_np_comparision.png}{K Nearest Neighbours with different distance metrics}{\label{knn}}{iris/plots/knn_np_p_comparision.png}{Preprocessing versus No-Preprocessing}{\label{prepro}}
 
 \subsection{Random Forest Classifier}
 Concerning the Random Forest Classifier, a \textit{RandomizedSearchCV} was used to approximate the hyperparameters, such as the amount of estimators or the min samples split size, before a more specific search was performed. This randomized search picked \textit{gini} as the better measurement of the quality of a split and a min samples split of about 0.01, which was altered between 0.01 and 0.199. \\

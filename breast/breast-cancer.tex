@@ -67,7 +67,6 @@ Comparing the performance of two estimators, preprocessing had a huge impact, wh
 
 Interestingly, Chebychev as a distance metric performs significantly worse compared to the others, especially with a higher \textit{k}.
 
-\image{breast/plots/knn_p_comparision.png}{Comparison of metrics}{\label{fig:breast-knn-metrics}}
 % \begin{figure}[H]
 %   \begin{center}
 %     \includegraphics[width=0.8\linewidth]{breast/plots/knn_p_comparision.png}
@@ -78,7 +77,7 @@ Interestingly, Chebychev as a distance metric performs significantly worse compa
 
 The previously explained feature selection unfortunately made no improvement, it made the performance even worse, which is shown in Figure \ref{fig:breast-knn-comparison}.
 
-\image{breast/plots/knn_feature_comparision.png}{Comparison of all Features and selected Features}{\label{fig:breast-knn-comparison}}
+\multimage{breast/plots/knn_p_comparision.png}{Comparison of metrics}{\label{fig:breast-knn-metrics}}{breast/plots/knn_feature_comparision.png}{Comparison of all Features and selected Features}{\label{fig:breast-knn-comparison}}
 % \begin{figure}[H]
 %   \begin{center}
 %     \includegraphics[width=0.8\linewidth]{breast/plots/knn_feature_comparision.png}
@@ -103,12 +102,11 @@ Different layer architectures and activation functions were altered.
 As seen in Figure \ref{fig:breast-mlp-comparison}, the best results were obtained with the activation function relu and 3 hidden layers with 30, 15 and 30 neurons.
 However the results are mostly the same. However  this is not the case for the Sigmoid or logistic activation function, which is probably due to vanishing gradients.
 
-\image{breast/plots/mlp_p_comparision.png}{comparison of layer sizes and activation functions}{\label{fig:breast-mlp-comparison}}
 
 Preprocessing improved the result as shown in Figure \ref{fig:breast-mlp-np-p-comparison}.
 Interestingly the gradients did not vanish for the logistic activation function without preprocessing.
 
-\image{breast/plots/mlp_np_p_comparision.png}{Comparison of activation functions with preprocessing in orange and without preprocessing in blue}{\label{fig:breast-mlp-np-p-comparison}}
+\multimage{breast/plots/mlp_p_comparision.png}{comparison of layer sizes and activation functions}{\label{fig:breast-mlp-comparison}}{breast/plots/mlp_np_p_comparision.png}{Comparison of activation functions with preprocessing in orange and without preprocessing in blue}{\label{fig:breast-mlp-np-p-comparison}}
 
 \subsection{Conclusion}
 
