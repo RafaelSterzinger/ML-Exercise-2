@@ -145,8 +145,6 @@ MLPClassifier          & 0.9824  & 0.9858           \\ \hline
 
 The best result was obtained by the K Nearest Neighbours classifier with 98.62\% and the second best by the MLP classifier with 98.58\%. However on kaggle, KNN only archived a score of 95.29\%, whereas the MLP archived a score of 97.64\%. The reason behind this might be the fact, that on kaggle more training data can be used and this can change the results significantly.
 
-Since one significance test against one baseline is mandatory, comparing the difference between the performance of the KNN as the baseline and the MLP would be the best application. Therefore the best estimator of KNN and the one of the MLP were selected, and their performance were evaluated again with cross validation with 10 splits each. To compare the significance, a related T-test was used, since both validation scores are calculated from the same sample. For the test, \textit{ttest\_rel}, from the \textit{scipy} packages was used, which is a two sided T-test. Thus, $H_0=0.9862$ and $H_1\neq0.9862$, which is the mean accuracy of KNN. The p-value returned by the method is 0.9727. For a threshold $\alpha$ of 5\%, the $H_0$ hypothesis of identical average scores can \textbf{not} be rejected. Therefore, both means are not significantly different.
-
 
 Regarding the runtime, KNN classifier is the fastest, followed by the random forest classifier and then by the multi layer perceptron, which takes the longest to train.
 
