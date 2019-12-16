@@ -21,7 +21,7 @@ from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import make_scorer, accuracy_score, precision_score, recall_score, f1_score
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.feature_selection import RFECV
-from scipy.stats import uniform, truncnorm, randint
+from scipy.stats import uniform, truncnorm, randint, ttest_rel
 
 from sklearn.pipeline import Pipeline
 
@@ -160,6 +160,7 @@ grid_search_dict = dict(c__n_neighbors=k, c__metric=metric)
 knn = GridSearchCV(pipeline, grid_search_dict, cv=10, n_jobs=-1)
 knn.fit(X, y)
 best_estimator = knn.best_estimator_
+knn_best_estimator = knn.best_estimator_
 print('Best Mean Score with Preprocessing', knn.best_score_, 'Model',
       best_estimator)
 
@@ -286,6 +287,7 @@ mlp1 = GridSearchCV(classifier_pipeline, param_grid, cv=3,
 
 mlp1.fit(X, y)
 best_estimator = mlp1.best_estimator_
+mlp_best_estimator = mlp1.best_estimator_
 
 print('Best Mean Score With Preprocessing', mlp1.best_score_, 'Model', mlp1.best_estimator_)
 mlp1_results = pd.DataFrame(mlp1.cv_results_)
@@ -318,6 +320,13 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_
 best_estimator.fit(X_train, y_train)
 print('Best Score Hold Out', best_estimator.score(X_test, y_test))
 
+#%% Calculating scores for 10 folds for baseline and mlp
+knn_scores = cross_validate(knn_best_estimator,X,y, n_jobs=-1,cv=10)
+mlp_scores = cross_validate(mlp_best_estimator,X,y, n_jobs=-1,cv=10)
+
+#%% Significance ttest
+p_value = ttest_rel(knn_scores['test_score'], mlp_scores['test_score'])
+
 # %% Kaggle Score 0.97647
 # X_scale = min_max_scaler.fit_transform(X)
 # test = pd.read_csv('breast/dataset/breast-cancer-diagnostic.shuf.tes.csv').drop('ID', axis=1)
@@ -339,22 +348,22 @@ print('Best Score Hold Out', best_estimator.score(X_test, y_test))
 # sol.to_csv("breast/dataset/sol.csv", index=False)
 
 # %% Kaggle knn
-min_max_scaler=MinMaxScaler()
-X_scale = min_max_scaler.fit_transform(X)
-test = pd.read_csv('breast/dataset/breast-cancer-diagnostic.shuf.tes.csv').drop('ID', axis=1)
-test.columns = test.columns.str.strip()
-sol = pd.read_csv('breast/dataset/breast-cancer-diagnostic.shuf.sol.ex.csv')
+#min_max_scaler=MinMaxScaler()
+#X_scale = min_max_scaler.fit_transform(X)
+#test = pd.read_csv('breast/dataset/breast-cancer-diagnostic.shuf.tes.csv').drop('ID', axis=1)
+#test.columns = test.columns.str.strip()
+#sol = pd.read_csv('breast/dataset/breast-cancer-diagnostic.shuf.sol.ex.csv')
 
-knn = KNeighborsClassifier(
-    leaf_size=30,
-    n_neighbors=10,
-    p=2,
-    weights='distance',
-    metric='euclidean'
-)
+#knn = KNeighborsClassifier(
+#    leaf_size=30,
+#    n_neighbors=10,
+#    p=2,
+#    weights='distance',
+#    metric='euclidean'
+#)
 
-knn.fit(X_scale, y)
-prediction = knn.predict(min_max_scaler.transform(test))
+#knn.fit(X_scale, y)
+#prediction = knn.predict(min_max_scaler.transform(test))
 
-sol['class'] = prediction
-sol.to_csv("breast/dataset/sol.csv", index=False)
+#sol['class'] = prediction
+#sol.to_csv("breast/dataset/sol.csv", index=False)
