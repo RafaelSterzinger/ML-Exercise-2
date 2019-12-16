@@ -123,7 +123,58 @@ For the Performance Metrics, accuracy, precision, recall and F1 were chosen. In 
 \section{Online-Shoppers-Intention}
 \input{onlineshop/onlineshop.tex}
 
-\section{Conclusion}
-%Overall Comparision of techniques
+% _________________________OVERALL CONCLUSION____________________________________________
+\section{Overall Conclusion}
+In this section we will summarize and analyse how useful the chosen classifiers are in regards to our specific datasets and how they compare to each other. \\
+\newline
+First of all it needs to be mentioned that the specific datasets pose different classification tasks as we have got 2 binary classifications (Online Shopping Predictions, Breast Cancer) and 2 Multiclass classifications (Iris, Amazon). Thus a direct comparison must be taken with a grain of salt, as having multiple classes adds another layer of complexity. \\
+\newline
+Looking at \secref{tab:summ} it is interesting to note that even the least sophisticated classifier, K Neighbors, was able to achieve 98 percent in every above mentioned performance metric for the Iris and Breast Cancer dataset. As seen in the previous plots, this can be explained by the good distinguishability of the specific features and allows the k Neighbors algorithm to look at the closest datapoints which are in the same baskets/classes. \\
+Comparing K Neighbors  to the Random Forest Classifier, we see that more complexity does not have to lead to better results. For these 2 datasets the Random Forest Classifier actually performed marginally worse for every metric and on top of that took a lot longer relatively to fit. The Random Forest Classifier still is a good model as it performed very similar to K neighbors for these datasets. For the more complex datasets (Online Shopping Predictions, Amazon) it achieved much better scores than the K Neighbors Classifier and even had the highest accuracy and precision score for the Online Shopping Predictions dataset. \\
+\newline
+A slight trend/observation can be made out for the different classifiers: 
+\begin{itemize}
+    \item The K Neighbors Classifier performs well for simpler datasets, where the features are more distinguishable.
+    \item Random Forest and MLP Classifier seem to perform well for simple and more complex datasets.
+    \item The MLP Classifier performs better than the others when the underlying structure to be learned is more sophisticated.
+\end{itemize} 
+Concerning the question about which classifiers prove useful, one needs to define a threshold for when we say that a model is applicable for real world use. For the Iris and Breast Cancer dataset the choice of classifier does not make too much of a difference, especially considering the fact that we only have a few datapoints and a few more could skew the scores for one classifier or the other. \\
+For the Online Shopping Predictions one could say that the Random Forest Classifier's results are good enough if one is only interested in the accuracy and the precision score. This could be the case if we say that the cost of false positives is high, for example if we'd send out expensive gifts for every potential buyer. Considering the fact that this model will most likely be used to do some form of marketing it is more plausible that we care more about the cost of false negatives, i.e. potentially losing customers. Thus for the Online Shopping Predictions dataset either a Random Forest or, more likely, the MLP Classifier could be applicable if one deems the achieved scores acceptable. \\
+Regarding the Amazon dataset it is clear that the MLP Classifier performs best at it achieves scores which are 10 percent higher (for every metric) than the Random Forest Classifier and takes less than a fifth of the time to fit. Nevertheless, as even the best classifiers for Online Shopping Predictions and the Amazon dataset seem do not seem to have non substential error rates, one needs to take the model's real world applicability with a grain of salt. \\
+\newline
 
+\begin{table}
+\begin{adjustwidth}{-3.0cm}{-3.0cm}  
+\begin{center}
+\begin{tabular}{|l|ccccr|ccccr|ccccr|}
+\hline
+                                                                      & \multicolumn{5}{c|}{K Neighbors} & \multicolumn{5}{c|}{Random Forest} & \multicolumn{5}{c|}{MLP} \\ %\hline
+                                                                      & A    & P    & R    & F1    & sec   & A     & P    & R    & F1    & sec    & A   & P  & R  & F1  & sec  \\ \hline
+Iris                                                                  & 0.98   & 0.98  & 0.98 & 0.98 & 0.0014 & 0.96   & 0.96    & 0.96 & 0.96 & 0.0695 & 0.98   & 0.98    & 0.98 & 0.98 & 0.7719   \\ \hline
+\begin{tabular}[c]{@{}l@{}}Online Shopping\\ Predictions\end{tabular} & 0.85   & 0.55  & 0.51 & 0.52 & 0.0434 & 0.90   & 0.72    & 0.58   & 0.64   & 1.0573 & 0.89   & 0.66    & 0.62   & 0.64   & 5.3267   \\ \hline
+Breast Cancer                                                         & 0.99   & 0.99    & 0.98 & 0.98 & 0.0016     & 0.98   & 0.98    & 0.97 & 0.97 & 0.0677      & 0.99   & 0.99    & 0.99 & 0.98 & 0.8999    \\ \hline
+Amazon                                                                & 0.43 & 0.38 & 0.44 & 0.38 & 30.9870  & 0.59 & 0.54 & 0.59 & 0.54 & 481.1520 &  0.70 & 0.66 & 0.69 & 0.65 & 87.9900     \\ \hline
+\end{tabular}
+\caption{Performance Metrics and Runtime Summary} 
+\label{tab:summ}
+\end{center}
+\end{adjustwidth}
+\end{table}
+\subsubsection{Parameter Sensitivity}
+Analysing the sensitivity of the classifiers in regards to parameter changes, we have found that simply changing one parameter sometimes could completely turn the result into another direction. This was especially observable for the MLP Classifier where simply choosing adam as the optimizer instead of the regular stochastic gradient descent turned a recall score from 0.2 to 0.675 (see \secref{fig:mlp_sgd} and \secref{fig:mlp_adam}). On top of that the MLP was very sensitive in regards to the activation function with tangens hyperbolicus generally providing the best results and the logistic activation function generally performing the worst.\\
+We have found that a higher amount of n\_estimators, i.e. trees, usually leads to a better performance up to a certain point. This can be explained by the fact that many trees help to create an average which does not overfit to certain scenarios.\\
+In regards to K Neighbors we have seen that we tend to get the best results with Euclidean and Manhattan as the distance metric.  
+Another thing that could be observed for the K Neighbors Classifier, was that preprocessing the data in general also lead to an increase of k, since with the scaled ranges  more datapoints could now be considered. \\
+\newline
+%TODO Preprocessing vs No-Preprocessing General Tabelle
+\subsubsection{Preprocessing Effects}
+Comparing the effects of Preprocessing, we see that the K Neighbors and MLP Classifier seemed to generally benefit the most from Scaling (excluding Iris since it only has a few features) while it did not have too much of of an impact on the Random Forest Classifier and even lead to a worse score for the Online Shopping Predictions dataset. For the Iris dataset, preprocessing lead to a decrease in performance for the K Neighbors Classifier and the MLP Classifier.
+
+\subsubsection{Runtime}
+While the amount of samples played a big role in the runtimes of the different classifiers, the amount of selected features had the biggest impact. Obviously the number of samples affects how long/often the model needs to be trained and updated (MLP), but the number of features affect how long it takes to calculate the comparisons to the other datasets and how long one 'calculation cycle' is. Iris and Breast Cancer which contained a similar amount of samples/features and also had very similar scores also seemed to  have pretty much the exact same fitting times. Increasing the samplesize to around 12.000 (Online Shopping with around 40 times more samples than Breast Cancer's 300) led to a runtime increase by a factor of 30 for K Neighbors, 15 for Random Forest and 5 for MLP.\\ On the other hand increasing the feature amount by a factor of 100 (we selected over a thousand features for the Amazon dataset and only around 15 for Breast Cancer) we saw a runtime increase by a factor of 20.000 for K Neighbors, 7.000 for Random Forest and 100 for MLP (MLP: less features or else it would take too long). 
+Comparing the high number of samples of the Online Shopping Predictions Dataset with the high number of features of the Amazon dataset runtime ratios of 700, 450 and 20 can be noted. Thus it seems that the runtime of K Neighbors seemed to be affected the most by an increase of samples/features, followed by Random Forest and then MLP. \\
+\newline
+Except for the Amazon dataset, where we achieved the best results with only a high amount of features, the MLP took around $c*10^1$ times longer to fit than the Random Forest Classifier and around $c* 10^2$ times longer than the K Neighbors Classifier.\\
+Observing the Amazon Dataset we see that the ratio of $c*10^1$ seems to hold true if we compare Random Forest to K Neighbors Classifier. The runtime ratio MLP to Random Forest did not scale as it did for the other datasets and MLP was even faster than Random Forest, which could be explained by the parameter choice in the best case scenarios. \\
+Another thing to keep in mind is that the parameters have got a huge influence on the runtimes. Increasing the amount of neighbors/amount of trees \& max depths/amount of iterations \& neurons for the respective classifiers also lead to an increase in runtimes.
 \end{document}
