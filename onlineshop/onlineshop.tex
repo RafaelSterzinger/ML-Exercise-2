@@ -80,7 +80,7 @@ Looking at \secref{fig:knn_wo_pre} one can see that using the most attributes le
 \end{figure}
 A general analysis beforehand showed that, while different weight parameters change how the recall values react to different k's, with \textit{uniform} being more sensitive compared to  \textit{distance}, they do not change the best achievable values.\\
 \newline
-As can be seen in \secref{fig:knn_w_pre} scaling the data leads to a best case improvement of around 0.07 compared to the unscaled data. This effect increases with increasing k. Another thing that scaling the data does, is reducing the overall decrease of the recall with changing k. This figure also shows that the euclidean and manhattan metric perform very similar for this dataset while the chebyshev performs slightly worse. 
+As can be seen in \secref{fig:knn_w_pre} scaling the data leads to a best case improvement of around 0.07 compared to the unscaled data. This effect increases with increasing k. Another thing that scaling the data does, is reducing the overall decrease of the recall with changing k. This figure also shows that the Euclidean and Manhattan metric perform very similar for this dataset while the Chebyshev performs slightly worse. 
 
 \subsection{Random Forest Classifier}
 For Random Forest Classifier we have used GridSearchCV to try out a few different parameters like \textit{n\_estimators, max\_depth and the criterion}. \\
@@ -184,11 +184,11 @@ MLPClassifier          & 0.8914   & 0.6648    & \textbf{0.6152}   & 0.6375   & 5
 \end{center}
 \end{table}
 
-Analysing the table in regards to Accuracy, we see that the different classifiers all perform very similarly, with K Neighbors Classifier being around 4 percent worse than the others. This is to be expected since our data is quite skewed, only having around 15.5\% positive target values. Due to this it is especially important to look at the other performance metrics. \\
+Analysing the table in regards to Accuracy, we see that the different classifiers all perform very similarly, with K Neighbors Classifier being around 4\% worse than the others. This is to be expected since our data is quite skewed, only having around 15.5\% positive target values. Due to this it is especially important to look at the other performance metrics. \\
 \newline
-While RandomForest Classifier only is marginally better than MLP Classifier in regards to accuracy, it achieves a precision score of around 72 percent which is more than 5 percent better than the one achieved by MLP and more than 5 percent better than the one achieved by K Neighbors. \\
+While RandomForest Classifier only is marginally better than MLP Classifier in regards to accuracy, it achieves a precision score of around 72\% which is more than 5\% better than the one achieved by MLP and more than 5\% better than the one achieved by K Neighbors. \\
 \newline 
-Using GridSearchCV to optimize our model in regards to recall, we were able to achieve a recall score of around 62 percent with the MLP Classifier and a score of 58 percent with the Random Forest Classifier. Looking at the F1 score we can see that Random Forest Classifier and MLP Classifier perform very similarly, both achieving a worthy score of around 0.64.\\
+Using GridSearchCV to optimize our model in regards to recall, we were able to achieve a recall score of around 62\% with the MLP Classifier and a score of 58\% with the Random Forest Classifier. Looking at the F1 score we can see that Random Forest Classifier and MLP Classifier perform very similarly, both achieving a worthy score of around 0.64.\\
 \newline
 Concering runtime we can see that the K Neighbors Classifier obviously performs best as it is a lazy learner and does not need any pre fitting. With increasing complexity, the runtime also increases which is why the MLP Classifier took over a hundred times longer to fit than the K Neighbors Classifier and over 5 times longer than the Random Forest Classifier.\\
 \newline

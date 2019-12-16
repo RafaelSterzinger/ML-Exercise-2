@@ -51,11 +51,11 @@ As seen in Figure \ref{fig:amazon-feature-selection} at least 1000 features shou
 
 \subsection{K Nearest Neighbors Classifier}
 
-For K Nearest Neighbours a Grid Search with cross validation was used. The euclidean, chebyshev, manhattan, manhattan and a \textit{k} between 1 and 60 were tested. 
+For K Nearest Neighbours a Grid Search with cross validation was used. The Euclidean, Chebyshev, Manhattan and a \textit{k} between 1 and 60 were tested. 
 The best \textit{k} for KNN without preprocessing and all attributes was 10.
 The best \textit{k} for KNN with preprocessing and features selected by recursive feature selection was 15.
 K Nearest Neighbours Classifier worked best with weights set to distance, so that the importance of the k neighbours are weighted by their distances to other samples.
-This increased results by about 5\%. As seen in Figure \ref{fig:amazon-knn-metric-comparison} the manhattan metric worked best.
+This increased results by about 5\%. As seen in Figure \ref{fig:amazon-knn-metric-comparison} the Manhattan metric worked best.
 The best performance of KNN was 44.13\% which is poor in comparison to the Random Forest Classifier or the Multi-Layer Perceptron.
 This is probably due to the small sample size in comparison to the target class size.
 However, it evaluates much faster, and therefore a first impressions could be derived quicker, when comparing it to other techniques, which is no surprise since K Nearest Neighbors is a lazy learner.

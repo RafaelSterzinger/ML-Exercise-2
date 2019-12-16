@@ -112,16 +112,16 @@ For the Performance Metrics, accuracy, precision, recall and F1 were chosen. In 
 }
 \end{itemize}
 
-\section{Amazon-Reviews Dataset}
+\section{Amazon Commerce Reviews}
 \input{amazon/amazon-reviews.tex}
 
-\section{Breast-Cancer Dataset}
+\section{Breast Cancer}
 \input{breast/breast-cancer.tex}
 
-\section{Iris Dataset}
+\section{Iris}
 \input{iris/iris.tex}
 
-\section{Online-Shoppers-Intention}
+\section{Online Shoppers Intention}
 \input{onlineshop/onlineshop.tex}
 
 % _________________________OVERALL CONCLUSION____________________________________________
@@ -130,7 +130,7 @@ In this section we will summarize and analyse how useful the chosen classifiers 
 \newline
 First of all it needs to be mentioned that the specific datasets pose different classification tasks as we have got 2 binary classifications (Online Shopping Predictions, Breast Cancer) and 2 Multiclass classifications (Iris, Amazon). Thus a direct comparison must be taken with a grain of salt, as having multiple classes adds another layer of complexity. \\
 \newline
-Looking at \secref{tab:summ} it is interesting to note that even the least sophisticated classifier, K Neighbors, was able to achieve 98 percent in every above mentioned performance metric for the Iris and Breast Cancer dataset. As seen in the previous plots, this can be explained by the good distinguishability of the specific features and allows the k Neighbors algorithm to look at the closest datapoints which are in the same baskets/classes. \\
+Looking at \secref{tab:summ} it is interesting to note that even the least sophisticated classifier, K Neighbors, was able to achieve 98\% in every above mentioned performance metric for the Iris and Breast Cancer dataset. As seen in the previous plots, this can be explained by the good distinguishability of the specific features and allows the k Neighbors algorithm to look at the closest datapoints which are in the same baskets/classes. \\
 Comparing K Neighbors  to the Random Forest Classifier, we see that more complexity does not have to lead to better results. For these 2 datasets the Random Forest Classifier actually performed marginally worse for every metric and on top of that took a lot longer relatively to fit. The Random Forest Classifier still is a good model as it performed very similar to K neighbors for these datasets. For the more complex datasets (Online Shopping Predictions, Amazon) it achieved much better scores than the K Neighbors Classifier and even had the highest accuracy and precision score for the Online Shopping Predictions dataset. \\
 \newline
 A slight trend/observation can be made out for the different classifiers: 
@@ -141,7 +141,7 @@ A slight trend/observation can be made out for the different classifiers:
 \end{itemize} 
 Concerning the question about which classifiers prove useful, one needs to define a threshold for when we say that a model is applicable for real world use. For the Iris and Breast Cancer dataset the choice of classifier does not make too much of a difference, especially considering the fact that we only have a few datapoints and a few more could skew the scores for one classifier or the other. \\
 For the Online Shopping Predictions one could say that the Random Forest Classifier's results are good enough if one is only interested in the accuracy and the precision score. This could be the case if we say that the cost of false positives is high, for example if we'd send out expensive gifts for every potential buyer. Considering the fact that this model will most likely be used to do some form of marketing it is more plausible that we care more about the cost of false negatives, i.e. potentially losing customers. Thus for the Online Shopping Predictions dataset either a Random Forest or, more likely, the MLP Classifier could be applicable if one deems the achieved scores acceptable. \\
-Regarding the Amazon dataset it is clear that the MLP Classifier performs best at it achieves scores which are 10 percent higher (for every metric) than the Random Forest Classifier and takes less than a fifth of the time to fit. Nevertheless, as even the best classifiers for Online Shopping Predictions and the Amazon dataset do not seem to have non substential error rates, one needs to take the model's real world applicability with a grain of salt. \\
+Regarding the Amazon dataset it is clear that the MLP Classifier performs best at it achieves scores which are 10\% higher (for every metric) than the Random Forest Classifier and takes less than a fifth of the time to fit. Nevertheless, as even the best classifiers for Online Shopping Predictions and the Amazon dataset do not seem to have non substential error rates, one needs to take the model's real world applicability with a grain of salt. \\
 \newline
 
 \begin{table}

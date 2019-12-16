@@ -20,7 +20,7 @@ A comparison of the different classifiers in sepal width versus sepal length or 
 \image{iris/plots/petal.png}{Comparison of Petal Length versus Petal Width}{\label{petal}}
 
 \subsection{K Nearest Neighbours Classifier}
-For K Nearest Neighbours a \textit{GridSearchCV} was carried out, where especially different \textit{k's} and metrics have been altered. Before that, a more general search has shown, that uniform weights perform better on the Iris dataset. Without preprocessing the best estimator is an Euclidean classifier, where \textit{k} equals 13. Comparing the different metrics, Chebyshev peaks earlier than euclidean, whereas Euclidean generally performed the best and Manhattan the worst (Figure \ref{knn}). 
+For K Nearest Neighbours a \textit{GridSearchCV} was carried out, where especially different \textit{k's} and metrics have been altered. Before that, a more general search has shown, that uniform weights perform better on the Iris dataset. Without preprocessing the best estimator is an Euclidean classifier, where \textit{k} equals 13. Comparing the different metrics, Chebyshev peaks earlier than Euclidean, whereas Euclidean generally performed the best and Manhattan the worst (Figure \ref{knn}). 
 
 
 With regards to the question about the effect of preprocessing, Figure \ref{prepro} shows clearly, that on the Iris dataset, preprocessed data performs worse than non preprocessed. Figure \ref{prepro} compares each best estimator for preprocessed and non preprocessed. Both estimators use the Euclidean distance metric and differ only in \textit{k}, where for preprocessing \textit{k=30} and for non preprocessing \textit{k=13} performed the best.  For preprocessing solely a \textit{MinMaxScaler} was used.
@@ -29,14 +29,14 @@ With regards to the question about the effect of preprocessing, Figure \ref{prep
 
 \subsection{Random Forest Classifier}
 Concerning the Random Forest Classifier, a \textit{RandomizedSearchCV} was used to approximate the hyperparameters, such as the amount of estimators or the min samples split size, before a more specific search was performed. This randomized search picked \textit{gini} as the better measurement of the quality of a split and a min samples split of about 0.01, which was altered between 0.01 and 0.199. \\
-The amount of different max features was only changed in the more specific \textit{GridSearchCV}, where previously found approximations of the parameters were used to keep the runtime shorter. Referring to Figure \ref{rf}, a real difference in performance seems to be only between one and more than one features. The amount of estimators do not make a big difference, but the search picked 80 as the best amount with max features of 2 for preprocessed and non preprocessed data. Both models archived the same performance, which is no surprise since scaling does not influence decision trees as well as a random forest.
+The amount of different max features was only changed in the more specific \textit{GridSearchCV}, where previously found approximations of the parameters were used to keep the runtime shorter. Referring to Figure \ref{rf}, a real difference in performance seems to be only between one and more than one features. The amount of estimators do not make a big difference, but the search picked 80 as the best amount with max features of 2 for preprocessed and non preprocessed data. Both models archived the same performance, which is no surprise since scaling does not influence decision trees as well as a random forests.
 
 \image{iris/plots/rf_np_comparision.png}{Comparison of the \textit{max\_features} attribute for different \textit{n\_estimators}}{\label{rf}}
 
 \subsection{Multi-Layer Perceptron Classifier}
 For the Multi-Layer Perceptron a strategy, similarly to the random forest one,  was chosen, where a general search was done by the \textit{RandomizedSearchCV}, followed by a more specific one with the \textit{GridSearchCV}.
 
-For the randomized search, different solver, learning rates and starting alphas have been altered, to fixate some parameters, when conducting a more granular search, to keep the run time shorter. Concerning the solver, stochastic gradient descent came out on top instead of \textit{adam}, which is a different stochastic gradient-based optimizer. Altering the learning rates 0.01, 0.001, 0.0001, 0.001 performed the best, with a constant learning rate.
+For the randomized search, different solver, learning rates and starting alphas have been altered, to fixate some parameters, when conducting a more granular search, to keep the run time shorter. Concerning the solver, stochastic gradient descent came out on top instead of \textit{adam}, which is a different stochastic gradient-based optimizer. Altering the learning rates 0.01, 0.001 and 0.0001, 0.001 performed the best, with a constant learning rate.
 
 Afterwards only different models and activation function were tried for scaled and non scaled data. The size and the amount of the different layers were randomly picked and the sizes were chosen to be between the amount of input neurons and the amount of output neurons, which resulted in three different models:
 
