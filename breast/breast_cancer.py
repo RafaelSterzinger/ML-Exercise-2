@@ -326,7 +326,7 @@ mlp_scores = cross_validate(mlp_best_estimator,X,y, n_jobs=-1,cv=10)
 
 #%% Significance ttest
 p_value = ttest_rel(knn_scores['test_score'], mlp_scores['test_score'])
-
+print(p_value)
 # %% Kaggle Score 0.97647
 # X_scale = min_max_scaler.fit_transform(X)
 # test = pd.read_csv('breast/dataset/breast-cancer-diagnostic.shuf.tes.csv').drop('ID', axis=1)
