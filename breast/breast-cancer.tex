@@ -1,4 +1,6 @@
-The breast cancer dataset was the second mandatory dataset. We got a score of 97.647\% on kaggle. 
+The breast cancer dataset was the second mandatory dataset.
+We got a score of 97.647\% on kaggle. 
+The dataset is is used to classify wheather a tumour is harmful or not.
 
 \subsection{Characteristics}
 
@@ -10,12 +12,15 @@ The breast cancer dataset was the second mandatory dataset. We got a score of 97
 \item 285 samples
 \end{itemize}
 
+The attributes contain descriptions of the tumour, for example its radius.
+
 \subsection{Characteristics of Target Value}
 
-There are two target classes, Benign (B) and Malignant (M).
-While 96 of the samples are of type M, 189 are of type B.
-A tumour is a cluster of abnormal cells. If it is a benign tumour it does not contain cancerous cells, whereas a malignant tumour does hold cancerous cells.
+A tumour is a cluster of abnormal cells.
+If it is a benign tumour it does not contain cancerous cells, whereas a malignant tumour does hold cancerous cells.
 Therefore it is more important to correctly classify a sample if it is a malignant tumour than correctly classifying a benign tumour.
+It contains two target classes, Benign (B) and Malignant (M).
+While 96 of the samples are of type M, 189 are of type B.
 
 \image{breast/plots/countplot.png}{Histogram of the target values}{\label{fig:breast-target}}
 
@@ -28,12 +33,12 @@ Therefore it is more important to correctly classify a sample if it is a maligna
 % \end{figure}
 
 \subsection{Feature Selection}
-First different plots to visualize the data were made. An example can be seen in Figure \ref{fig:breast-violin}.
-In the example it can be observed that for example the fractalDimensionMean (the feature on the right) is bad for classification while the radiusMean could be useful as its classes are differently distributed.
+First different plots to visualize the data were made.
+An example can be seen in Figure \ref{fig:breast-violin}, it can be observed that the fractalDimensionMean (the feature on the right) is bad for classification while the radiusMean could be useful as its classes are differently distributed.
 Additionaly boxplots were made which can be observed in Figure \ref{fig:breast-boxplot}.
 Boxplots give information about outliers, but the distribution can not be observed as clearly as with violin plots.
-Often attributes contain the same information, this can be checked by calculating the correlation or graphically with a scatter plot as shown in Figure \ref{fig:breast-correlation}
-With these plots the best attributes were found.
+Often attributes contain the same information, this can be checked by calculating the correlation of two attributes or graphically interpret their scatter plot as shown in Figure \ref{fig:breast-correlation}.
+These plots were analyzed and the best attributes were selected.
 
 \image{breast/plots/violinplot.png}{Violine plot of the first 10 features that were scaled by MinMax}{\label{fig:breast-violin}}
 \image{breast/plots/boxplot.png}{Boxplot of the first 10 features that were scaled by MinMax}{\label{fig:breast-boxplot}}
@@ -47,7 +52,7 @@ With these plots the best attributes were found.
 %   \end{center}
 % \end{figure}
 
-Furthermore, recursive feature selection with random forest was performed, as seen in Figure \ref{fig:breast-feature-selection} 15 to 30 features work best.
+Furthermore, recursive feature selection with random forest was performed, as seen in Figure \ref{fig:breast-feature-selection}, 15 to 30 features work best.
 
 \image{breast/plots/rf_feature_selection.png}{Recursive Feature selection}{\label{fig:breast-feature-selection}}
 
@@ -58,7 +63,8 @@ As seen in Figure \ref{fig:breast-knn-metrics} euclidean works best for preproce
 Concerning the amount of neighbours included in the majority vote, preprocessing works best with a \textit{k} of 10 and weighted distance and non preprocessed with a \textit{k} of 5 uniform weighted distance.
 Comparing the performance of two estimators, preprocessing had a huge impact, which resulted in a 4\% higher accuracy, archiving a performance of 98.6\%.  
 
-Intrestingly, chebychev as a weight metric performs significantly worse compared to the others. Especially with a higher \textit{k} it gets even more worse.
+Intrestingly, chebychev as a weight metric performs significantly worse compared to the others, espacially with a higher k.
+
 \image{breast/plots/knn_p_comparision.png}{Comparison of metrics}{\label{fig:breast-knn-metrics}}
 % \begin{figure}[H]
 %   \begin{center}
@@ -91,17 +97,14 @@ It was found that a score of 97.89\% can be obtained by using a maximum of 10\% 
 \subsection{Multi-Layer Perceptron Classifier}
 
 For the Multi-Layer Perceptron Classifier a grid search was performed.
-Both different layer architectures and activation functions were altered.
-The results are shown in Figure \ref{fig:breast-mlp-comparison}.
-The best results were obtained with relu and 3 hidden layers with 30, 15 and 30 neurons.
-However the results are mostly the same but for the logistic activation function.
-Logistic (sigmoid) performes worst.
-This is probably due to vanishing gradients.
+Different layer architectures and activation functions were altered.
+As seen in Figure \ref{fig:breast-mlp-comparison}, the best results were obtained with the activation function relu and 3 hidden layers with 30, 15 and 30 neurons.
+However the results are mostly the same but for the logistic (sigmoid) activation function, this is probably due to vanishing gradients.
 
 \image{breast/plots/mlp_p_comparision.png}{comparison of layer sizes and activation functions}{\label{fig:breast-mlp-comparison}}
 
 Preprocessing improved the result as shown in Figure \ref{fig:breast-mlp-np-p-comparison}.
-Interestingly the gradients died not vanish for the logistic activation function without preprocessing.
+Interestingly the gradients did not vanish for the logistic activation function without preprocessing.
 
 \image{breast/plots/mlp_np_p_comparision.png}{Comparison of activation functions with preprocessing in orange and without preprocessing in blue}{\label{fig:breast-mlp-np-p-comparison}}
 
@@ -125,7 +128,7 @@ MLPClassifier          & 0.9824        & 0.9614           \\ \hline
 \end{table}
 
 Holdout and cross validation yield similar results.
-Therefore holdout can be used for parameter evaluation, because it is faster than cross validation.
+Therefore holdout can be used for parameter evaluation.
 
 \begin{table}[H]
 \begin{center}
@@ -142,6 +145,7 @@ MLPClassifier          & 0.9824  & 0.9858           \\ \hline
 
 The best result was obtained by the k nearest neighbors classifier with 98.62 \% and the second best by the MLP classifier with 98.58 \%.
 However on Kaggle knn only achived a score of 95.29 \% and MLP achived a score of 97.64 \%, therefore MLP probably works better.
+On Kaggle more training data can be used and this can change the results significantly.
 Regarding runtime knn classifier is the fastest, followed by random forest classifier.
 The multi layer perceptron takes the longest to train.
 Classifing a cancerous tumour, i.e. a malignant as a non cancerous tumour, i.e. benign, could be fatal for the patient.
