@@ -57,7 +57,7 @@
 \maketitle
 
 \section{Techniques}
-Different performance techniques had been chosen, based on performance and on techniques previously used in the regression exercise. Thus, the K Nearest Neighbours Classifier and the Multi-Layer Perceptron Classifier were selected. A Decision Tree Classifier, which would have been the consecutive technique to the previously used Decision Tree Regressor, was used but discarded early on, since the Random Forest Classifier performed better. For the Kaggle Submissions, Support Vector Machines such as Linear Support Vector Classification and Support Vector Classification have been tried out as well, but they are not mentioned in the following report, hence their performance were worse than the one of the best found estimators for each dataset. The following three subsections give an overview about the chosen classifiers.
+Different performance techniques had been chosen, based on performance and on techniques previously used in the regression exercise. Thus, the K Nearest Neighbours Classifier and the Multi-Layer Perceptron Classifier were selected. A Decision Tree Classifier, which would have been the consecutive technique to the previously used Decision Tree Regressor, was used but discarded early on, since the Random Forest Classifier performed better. For the Kaggle Submissions, Support Vector Machines such as Linear Support Vector Classification and Support Vector Classification have been tried out as well, but they are not mentioned in the following report, since their performance were worse than the best found estimators for each dataset. The following three subsections give an overview about the chosen classifiers.
 
 \subsection{K Nearest Neighbours Classifier}
 Classification with K Nearest Neighbours is an instance-based learning technique, which means that it does not construct a general internal model, but simple uses the different samples directly to classify. The class for a new sample is computed from a majority vote of the $k$ nearest neighbours of the new sample and therefore assigns the most representative class for it.
@@ -72,7 +72,7 @@ Parameters altered:
 \end{itemize}
 
 \subsection{Random Forest Classifier}
-The Random Forest Classifier is an ensemble algorithm, which means that it consists of several build instances of estimators on random subsets of the original train data. Their choice of classification for a new sample is then aggregated to give a final prediction. This helps to reduces the variance of a base estimator, which in the case of the Random Forest Classifier is a Decision Tree Classifier. Generating multiple estimators is also a simple way to avoid overfitting. Parameters such as max\_samples or max\_features control the size of the subsets, whereas bootstrapping decides if features or samples are drawn with or without replacement.
+The Random Forest Classifier is an ensemble algorithm, which means that it consists of several build instances of estimators on random subsets of the original train data. Their choice of classification for a new sample is then aggregated to give a final prediction. This helps to reduce the variance of a base estimator, which in the case of the Random Forest Classifier is a Decision Tree Classifier. Generating multiple estimators is also a simple way to avoid overfitting. Parameters such as max\_samples or max\_features control the size of the subsets, whereas bootstrapping decides if features or samples are drawn with or without replacement.
 
 Parameters altered:
 \begin{itemize}
@@ -84,7 +84,7 @@ Parameters altered:
 
 \subsection{Multi-Layer Perceptron Classifier}
 A Multi-Layer Perceptron (MLP) is a supervised learning technique, which learns to approximate a function
-by training on a dataset. It takes the attributes as an input and return a prediction for the target class and thus can learn a non-linear function for classification. Between the input and the output layer may also be multiple hidden layers, all consisting of neurons, which are connected with each other. Each neuron in the hidden layer transforms the values from the previous layer with a weighted linear summation, followed by a non-linear activation function. Different activation function can be used, such as logistic, hyperbolic tan function or relu. An MLP has multiple advantages, e.g. it is sensitive to feature scaling which can be either good or bad, or parameter tuning which can take much time, which is especially depending on the amount of samples, features or layers.
+by training on a dataset. It takes the attributes as an input and returns a prediction for the target class and thus can learn a non-linear function for classification. Between the input and the output layer may also be multiple hidden layers, all consisting of neurons, which are connected with each other. Each neuron in the hidden layer transforms the values from the previous layer with a weighted linear summation, followed by a non-linear activation function. Different activation functions can be used, such as logistic, hyperbolic tan function or relu. An MLP has multiple advantages, e.g. it is sensitive to feature scaling which can be either good or bad, or parameter tuning which can take much time. This is especially dependent on the amount of samples, features and layers.
 
 Parameters altered:
 \begin{itemize}
@@ -96,7 +96,7 @@ Parameters altered:
 \end{itemize}
 
 \section{Performance Metrics}
-For the Performance Metrics, accuracy, precision, recall and F1 were chosen. In the following section a short overview about each metric will be presented, however the question about the usefulness of a metric depending on a specific dataset is answered for each dataset on its own in its section. In Figure \ref{fig:conf} the evaluation of a binary prediction is visualized, which is also known as the table of confusion. For multi-label target values, it is also differed between micro and macro, which defines the way how multiple values are aggregate and when the average is calculated. In this report macro has been selected.
+For the Performance Metrics, accuracy, precision, recall and F1 were chosen. In the following section a short overview about each metric will be presented, however the question about the usefulness of a metric depending on a specific dataset is answered for each dataset on its own in the respective sections. In Figure \ref{fig:conf} the evaluation of a binary prediction is visualized, which is also known as the table of confusion. For multi-label target values, it is also differed between micro and macro, which defines the way how multiple values are aggregated and when the average is calculated. In this report macro has been selected.
 
 \image{performance.png}{Table of confusion}{\label{fig:conf}}
 \begin{itemize}

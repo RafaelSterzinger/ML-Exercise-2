@@ -63,7 +63,7 @@ For the K Nearest Neighbour Classifier a grid search with cross validation was u
 
 As seen in Figure \ref{fig:breast-knn-metrics} Euclidean works best for preprocessed data, whereas Manhattan is better for non preprocessed data.
 Concerning the amount of neighbours included in the majority vote, preprocessing works best with a \textit{k} of 10 and weighted distance and non preprocessed with a \textit{k} of 5 and uniform weighted distance.
-Comparing the performance of two estimators, preprocessing had a huge impact, which resulted in a 4\% higher accuracy, archiving a performance of 98.6\%.  
+Comparing the performance of two estimators, preprocessing had a huge impact, which resulted in a 4\% higher accuracy, achieving a performance of 98.6\%.  
 
 Interestingly, Chebychev as a distance metric performs significantly worse compared to the others, especially with a higher \textit{k}.
 
@@ -76,7 +76,7 @@ Interestingly, Chebychev as a distance metric performs significantly worse compa
 %   \end{center}
 % \end{figure}
 
-The previously explained feature selection unfortunately made no improvement, it made the performance even worse, which is shown in the Figure \ref{fig:breast-knn-comparison}.
+The previously explained feature selection unfortunately made no improvement, it made the performance even worse, which is shown in Figure \ref{fig:breast-knn-comparison}.
 
 \image{breast/plots/knn_feature_comparision.png}{Comparison of all Features and selected Features}{\label{fig:breast-knn-comparison}}
 % \begin{figure}[H]
@@ -146,12 +146,12 @@ MLPClassifier          & 0.9824  & 0.9858           \\ \hline
 \end{table}
 
 The best result was obtained by the K Nearest Neighbours classifier with 98.62\% and the second best by the MLP classifier with 98.58\%.
-However on kaggle, KNN only archived a score of 95.29\%, whereas the MLP archived a score of 97.64\%. The reason behind this might be the fact, that on kaggle more training data can be used and this can change the results significantly.
+However on kaggle, KNN only achieved a score of 95.29\%, whereas the MLP archived a score of 97.64\%. The reason behind this might be the fact, that on kaggle more training data can be used and this can change the results significantly.
 Regarding the runtime KNN classifier is the fastest, followed by the random forest classifier and then the multi layer perceptron, which takes the longest to train.
 
 Concerning the classification of a cancerous tumour cells, it is not an easy task, since wrong prediction can be fatal for the patient.
 
-Therefore, the correct prediction of a malignant as a non cancerous tumour is not that important as the classification of a benign cell. Thus, the best performance metric is the one that minimizes false negatives, which is the case, when using Recall as a performance metric, which also means that KNN is the best classifier in our case for this task, however more samples should be used for a better evaluation, hence a score of 98.58\% is still not sufficient.
+Therefore, the correct prediction of a malignant as a non cancerous tumour is not that important as the classification of a benign cell. Thus, the best performance metric is the one that minimizes false negatives, which is the case, when using Recall as a performance metric. This also means that KNN is the best classifier in our case for this task, however more samples should be used for a better evaluation, hence a score of 98.58\% is still not sufficient.
 
 \begin{table}[H]
 \begin{center}

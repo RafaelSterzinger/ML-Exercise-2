@@ -1,4 +1,4 @@
-The amazon dataset was the first mandatory dataset, were we accomplished a score of 72.8\% on kaggle competition. Especially the high dimensionality was the challenge of this dataset.
+The amazon dataset was the first mandatory dataset, where we accomplished a score of 72.8\% on the kaggle competition. Especially the high dimensionality was the challenge of this dataset.
 
 \subsection{Characteristics}
 
@@ -11,13 +11,13 @@ The amazon dataset was the first mandatory dataset, were we accomplished a score
 \end{itemize}
 
 With its 10 000 attributes it is high dimensional.
-Therefore Feature Selection is important, but features can not be interpreted by hand, because there are too many of them.
-In order to find good features algorithms from scikit were used, as described in section \ref{fig:amazon-feature-selection}.
+Therefore Feature Selection is especially important for this dataset. Features can not be interpreted by hand, because there are too many of them.
+In order to find good features, algorithms from scikit were used, as described in section \ref{fig:amazon-feature-selection}.
 
 \subsection{Characteristics of Target value}
 The target classes are the different authors of the reviews.
 There are 50 different authors and even though the dataset has a lot of samples, there are only a few samples per class.
-This is shown in Figure \ref{fig:amazon-target}. With a minimum of 8 samples written by CFH and a maximum of 21 samples written by Chell. 
+This is shown in Figure \ref{fig:amazon-target}, with a minimum of 8 samples written by CFH and a maximum of 21 samples written by Chell. 
 On the other hand 10 000 attributes for each sample might be sufficient for a good and useful classification result.
 
 \image{amazon/plots/target.png}{Histogram of the target values}{\label{fig:amazon-target}}
@@ -35,7 +35,7 @@ On the other hand 10 000 attributes for each sample might be sufficient for a go
 \label{amazon-feature-selection}
 Feature selection improves results and reduces the runtime a lot. It was not feasible to train the multi layer perceptron without feature selection, because producing a representative result with cross validation would have taken over 10 minutes to complete. Thus, a comparison without feature selection was not done. Selecting specific attributes results in a general improvement of 20\%-40\% depending on the classifier and the amount of chosen attributes. 
 
-Features were selected by SelectKBest and recursive feature elimination and cross-validated selection of the best numbers of features.
+Features were selected by SelectKBest, recursive feature elimination and cross-validated selection of the best numbers of features.
 SelectKBest performs a ${\chi}^2$ test on the samples to retrieve the best features.
 As seen in Figure \ref{fig:amazon-feature-selection} at least 1000 features should be used to cross the 55\% mark, however no difference in performance could be detected between 1000 and 4000 selected features.
 
@@ -58,7 +58,7 @@ K Nearest Neighbours Classifier worked best with weights set to distance, so tha
 This increased results by about 5\%. As seen in Figure \ref{fig:amazon-knn-metric-comparison} the manhattan metric worked best.
 The best performance of KNN was 44.13\% which is poor in comparison to the Random Forest Classifier or the Multi-Layer Perceptron.
 This is probably due to the small sample size in comparison to the target class size.
-However, it evaluates much faster, and therefore a first impressions could be derived quicker, when comparing to other techniques, which is no surprise since KNN is a lazy learner.
+However, it evaluates much faster, and therefore a first impressions could be derived quicker, when comparing it to other techniques, which is no surprise since K Nearest Neighbors is a lazy learner.
 
 \image{amazon/plots/knn_metrics.png}{Comparison of knn metrics}{\label{fig:amazon-knn-metric-comparison}}
 % \begin{figure}[H]
@@ -89,7 +89,7 @@ As previously described a grid search with cross validation was used to find the
 However trying and varying all parameters would explode the search space, hence a random search with cross validation was used to approximate features first.
 Then the more specific grid search with a smaller search space based on the obtained results, was performed.
 The best features of Figure \ref{fig:amazon-feature-selection} were used to improve the results even more. 
-As seen in Figure \ref{fig:amazon-rf-comparison}, low maximum features yielded to good results, because of the high dimensionality.
+As seen in Figure \ref{fig:amazon-rf-comparison}, low maximum features yielded good results, because of the high dimensionality.
 With 34 estimators and 30\% max features, a score of 60\% was accomplished which is almost as good as the multi layer perceptron.
 However it took significantly longer to fit and evaluate than KNN.
 
@@ -105,9 +105,9 @@ However it took significantly longer to fit and evaluate than KNN.
 
 \subsection{Multi-Layer Perceptron Classifier}
 
-For MLP a grid search with a small search space was used, because testing out different to many hyperparameters is not feasible, because it takes a lot of time and computation power.`
+For MLP a grid search with a small search space was used, because testing out different to many hyperparameters is not feasible (takes a lot of time and computation power).
 As shown in Figure \ref{fig:amazon-mlp-comparison} choosing different activation functions does hardly make any difference.
-A score of 72.8\% in accuracy was obtained in the kaggle competition by  selecting 2000 features with the ${\chi}^2$ tests, using relu as activation function, having one hidden layer with 100 neurons and setting max iterations on 4000.
+A score of 72.8\% in accuracy was obtained in the kaggle competition by  selecting 2000 features with the ${\chi}^2$ tests, using relu as activation function, having one hidden layer with 100 neurons and setting max iterations to 4000.
 
 \image{amazon/plots/mlp_comparison.png}{Comparison of mlp parameters}{\label{fig:amazon-mlp-comparison}}
 
@@ -136,7 +136,7 @@ MLPClassifier          & 0.6746        & 0.6133           \\ \hline
 \end{center}
 \end{table}
 
-Holdout obviously yields different results than cross validation. Although cross validation takes a lot of time for parameter optimization, it generally give more accurate average predictions, whereas hold out is quicker but might not be as accurate. Accuracy between holdout and cross validation differs up to 5\_%.
+Holdout obviously yields different results than cross validation. Although cross validation takes a lot of time for parameter optimization, it generally gives more accurate average predictions, whereas hold out is quicker but might not be as accurate. Accuracy between holdout and cross validation differs up to 5\%.
 
 \begin{table}[ht]
 \begin{center}
