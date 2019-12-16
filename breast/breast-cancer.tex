@@ -12,10 +12,10 @@ The breast cancer dataset was the second mandatory dataset. We got a score of 97
 
 \subsection{Characteristics of Target Value}
 
-There are two target classes, B and M (B=benign, M=malignant).
+There are two target classes, Benign (B) and Malignant (M).
 While 96 of the samples are of type M, 189 are of type B.
-A tumor is a cluster of abnormal cells, if it is a benign tumors do not contain cancerous cells, while malignant tumors do hold cancerous cells.
-Therefore it is more important to correctly classifiy a sample if it is a malignant tumor than correctly classifing a bengin tumor.
+A tumour is a cluster of abnormal cells. If it is a benign tumour it does not contain cancerous cells, whereas a malignant tumour does hold cancerous cells.
+Therefore it is more important to correctly classify a sample if it is a malignant tumour than correctly classifying a benign tumour.
 
 \image{breast/plots/countplot.png}{Histogram of the target values}{\label{fig:breast-target}}
 
@@ -32,7 +32,7 @@ First different plots to visualize the data were made. An example can be seen in
 In the example it can be observed that for example the fractalDimensionMean (the feature on the right) is bad for classification while the radiusMean could be useful as its classes are differently distributed.
 Additionaly boxplots were made which can be observed in Figure \ref{fig:breast-boxplot}.
 Boxplots give information about outliers, but the distribution can not be observed as clearly as with violin plots.
-Often attributes contain the same information, this can be checked by calculating the correlation or graphicaly with a scatter plot as shown in Figure \ref{fig:breast-correlation}
+Often attributes contain the same information, this can be checked by calculating the correlation or graphically with a scatter plot as shown in Figure \ref{fig:breast-correlation}
 With these plots the best attributes were found.
 
 \image{breast/plots/violinplot.png}{Violine plot of the first 10 features that were scaled by MinMax}{\label{fig:breast-violin}}
