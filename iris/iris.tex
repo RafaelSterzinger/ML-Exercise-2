@@ -1,4 +1,4 @@
-The Iris dataset was chosen, because of its low number of dimensions and its small number of samples, which fulfils the requirement to be contrary to the other selected set and is a good beginning example for classification. The aim of this dataset is to predict the species of a flower, depending on different measurement of sepal and petal. Furthermore, it is a very well known dataset, which allows comparison and therefore gives feedback on the accuracy of our results. In general, preprocessing is not mandatory, however since the dataset contains only rational data types, it would be interesting two compare scaled data versus non-scaled one. A selection of features is not necessary, since it only consists of four dimensions and already performs quite well. For the following analysis of the different classification techniques in regards with the Iris dataset, mainly \textit{GridSearchCV}, with cross validation from 3 to 10, depending on the complexity and therefore on the runtime, was used. 
+The Iris dataset was chosen, because of its low number of dimensions and its small number of samples, which fulfils the requirement to be contrary to the other selected set and is a good beginning example for classification. The aim of this dataset is to predict the species of a flower, depending on different measurement of sepal and petal. Furthermore, it is a very well known dataset, which allows comparison and therefore gives feedback on the accuracy of our results. In general, preprocessing is not mandatory, however since the dataset contains only rational data types, it would be interesting to compare scaled data versus non-scaled one. A selection of features is not necessary, since it only consists of four dimensions and already performs quite well. For the following analysis of the different classification techniques in regards with the Iris dataset, mainly \textit{GridSearchCV}, with cross validation from 3 to 10, depending on the complexity and therefore on the runtime, was used. 
 
 \subsection{Characteristics}
 
@@ -10,7 +10,7 @@ The Iris dataset was chosen, because of its low number of dimensions and its sma
 \item 150 samples
 \end{itemize}
 
-Comparing the correlation of the different attributes, \textit{petal width}, \textit{petal length} and \textit{sepal length} are all strong correlated. Only \textit{sepal width} is an exception, which is less and negatively correlated to the others (Figure \ref{fig:iris_heat}). Thus, sepal width could be a good attribute to distinct between the different classes.
+Comparing the correlation of the different attributes, \textit{petal width}, \textit{petal length} and \textit{sepal length} are all strong correlated. Only \textit{sepal width} is an exception, which is less and negatively correlated to the others (Figure \ref{fig:iris_heat}). Thus, sepal width could be a good attribute to distinguish between the different classes.
 
 \image{iris/plots/heatmap.png}{Heatmap of the different attributes of the Iris dataset}{\label{fig:iris_heat}}
 
@@ -47,7 +47,7 @@ Afterwards only different models and activation function were tried for scaled a
 \item (4,3,4)
 \end{itemize}
 
-The second parameter which was varied, were the activation functions. There \textit{tanh, relu, logistic, itdenty} were altered. When evaluating the different \textit{GridSeachCV} results with max iteration set 4000, the non preprocessed model performed slightly better, with an accuracy of 0.9866, which was the overall best performance of all different techniques. Interestingly, both searches for scaled and non scaled data, chose the tangent hyperbolic as the activation function, but concerning the model, preprocessed performed best with the (3,4,3) model and non preprocessed with the (4,3,4) one. In both cases the logistic or Sigmoid activation function performed significantly worse, which could be due to the fact of vanishing gradients (Figure \ref{mlp}).
+The second parameter which was varied, were the activation functions. There \textit{tanh, relu, logistic, itdenty} were chosen. When evaluating the different \textit{GridSeachCV} results with max iteration set 4000, the non preprocessed model performed slightly better, with an accuracy of 0.9866, which was the overall best performance of all different techniques. Interestingly, both searches for scaled and non scaled data, chose the tangent hyperbolic as the activation function, but concerning the model, preprocessed performed best with the (3,4,3) model and non preprocessed with the (4,3,4) one. In both cases the logistic or Sigmoid activation function performed significantly worse, which could be due to the fact of vanishing gradients (Figure \ref{mlp}).
 
 \image{iris/plots/mlp_np_comparision.png}{Comparison of different models and activation functions}{\label{mlp}}
 
@@ -68,7 +68,7 @@ MLPClassifier          & 0.9666        & 0.9866           \\ \hline
 \end{center}
 \end{table}
 
-A comparison between holdout and cross validation gives mixed results and it is very questionable that one would get an accuracy of 100\% when testing. However, holdout was never completely off to cross validation and therefore can be useful for a quick approximation of the performance of a model, where cross validation would take much longer.
+A comparison between holdout and cross validation gives mixed results and it is very questionable that one would get an accuracy of 100\% when testing. However, holdout was never completely different than cross validation and therefore can be useful for a quick approximation of the performance of a model, where cross validation would take much longer.
 
 \begin{table}[h]
 \begin{center}
