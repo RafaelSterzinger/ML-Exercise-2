@@ -1,6 +1,4 @@
-
-
-The Online Shoppers Purchasing Prediction dataset fits somewhere in between the others as it has a low to medium amount of features and its sample size is on the medium to high spectrum. It also complements the Breast Cancer dataset as it is also a binary classification task. Another reason why  this dataset has been chosen, is that is a lot closer to real world applications than some other posed Machine Learning questions. From a entrepreneurial standpoint it is very interesting for business processes as it can aid in ameliorating other internal processes. With it one can facilitate answering questions such as ''Will this person buy something?'' and ''How can we change our internal processes, based on the important attributes we identified, to increase the percentage of people buying things?''. We first take a general look on the different attributes and try to find the most important features by analysing the data. Afterwards we try out the above mentioned classifiers with a few different parameters to find the right settings based on this dataset. A final summary will be given by comparing the best parameters in combination with Preprocessing vs No-Preprocessing, Holdout vs Cross Validation and taking a look at a few different performance metrics. 
+The Online Shoppers Purchasing Prediction dataset fits somewhere in between the others as it has a low to medium amount of features and its sample size is on the medium to high spectrum. It also complements the Breast Cancer dataset as it is also a binary classification task. Another reason why  this dataset has been chosen, is that is a lot closer to real world applications than some other posed Machine Learning questions. From a entrepreneurial standpoint it is very interesting for business processes as it can aid in ameliorating other internal processes. With it one can facilitate answering questions such as ''Will this person buy something?'' and ''How can we change our internal processes, based on the important attributes we identified, to increase the percentage of people buying things?''. We first take a general look on the different attributes and try to find the most important features by analysing the data. Afterwards we try out the above mentioned classifiers with a few different parameters to find the right settings based on this dataset. A final summary will be given by comparing the best parameters in combination with Preprocessing vs No-Preprocessing, Holdout vs Cross Validation and taking a look at a few different performance metrics.
 
 \subsection{Characteristics}
 
@@ -22,22 +20,19 @@ As there are 8 categorical values these need to be encoded to be available for o
 \subsection{Characteristics of Target Value}
 While accuracy is a great measure for classification problems when one has symmetric datasets (amount of false positves and false negatives is approximately the same), it is not optimal for our model.
 As can be seen in \secref{fig:rev_box} only 15.5\% (1908) were positive class samples that ended with shopping and the rest (10422) did not end with shopping. It is more important to not falsely identify Buyers as Non-Buyers. For example we would rather focus on more people than necessary instead of potentially losing profit and customers. Due to this we chose Recall as our primary performance metric when optimizing the different Classifiers as there is a high cost of False Negatives and our data is skewed.
-\image{onlineshop/plots/revenue_boxplot.png}{Target Class Distribution}{\label{fig:rev_box}}
+\image{plots/revenue_boxplot.png}{Target Class Distribution Online Shopping Predictions Revenue}{\label{fig:rev_box}}
 
 \subsection{Feature Selection}
 % Heatmap Correlation
 Now having 57 attributes, it is important to remove features and thus random noise which could lead to overfitting to the training data. Reducing the dimensions also allows us to reduce training time and thus lets us train with more different parameters. Looking at the correlation matrix in \secref{fig:heat} one can see features that are correlated such as PageValues, ExitRates, ProductRelated,ProductRelated Duration BounceRates, etc.  
-\image{onlineshop/plots/heatmap.png}{Heatmap of the different attributes of the Online Shopping Prediction dataset}{\label{fig:heat}} \\
+\image{plots/heatmap.png}{Heatmap of the different attributes of the Online Shopping Prediction dataset}{\label{fig:heat}} \\
 \newline
-Using Scikitlearn's SelectKBest and RandomForestClassifier we analysed the features, correlating with the Revenue target, more in depth. \\
-\newline
-
-The top 10 correlated features, with their respective scores, found through SelectKBest are as follows:
+Using Scikitlearn's SelectKBest and RandomForestClassifier we analysed the features, correlating with the Revenue target, more in depth. The top 10 correlated features, with their respective scores, found through SelectKBest are found in \secref{fig:feat_rfc} and Table \secref{tab:feat_sel}. \\
 
 \begin{figure}
 \begin{floatrow}
-\ffigbox[\FBwidth][][]{\caption{Top 10 features selected by RandomForestClassifier}}
-    {\includegraphics[width=8cm]{onlineshop/plots/feature_selection_random_forest_classifier.png}}
+\ffigbox[\FBwidth][][]{\caption{Top 10 features selected by RandomForestClassifier}\label{fig:feat_rfc}}
+    {\includegraphics[width=8cm]{plots/feature_selection_random_forest_classifier.png}}
 
 \capbtabbox{%
   \begin{tabular}{l|r}
@@ -56,12 +51,11 @@ SpecialDay                & 53.80                     \\
 OperatingSystems\_3       & 48.55                    
 \end{tabular}
 }{%
-  \caption{Top 10 features selected by SelectKBest}%
+  \caption{Top 10 features selected by SelectKBest}\label{tab:feat_sel}
 }
 \end{floatrow}
 \end{figure}
-
-Looking at both models one can see that the two most important attributes are 'ProductRelated\_Duration' and 'PageValues.
+Looking at both models, one can see that the two most important attributes are 'ProductRelated\_Duration' and 'PageValues.
 Using the information from the two selections and through trial and error, by playing around with a few different attribute combinations, we have found the following top attributes:
 
 \begin{itemize}
@@ -74,20 +68,20 @@ Performance comparisons between the different Top attributes lists can be found 
 
 
 \subsection{K Nearest Neighbours Classifier}
-Looking at \secref{fig:knn_wo_pre} one can see that using the most attributes leads to the best performance.  Interesting to note here, is that the best recall values were achieved when using k = 1 and thus only looking at the closest neighbour. 
+Looking at \secref{fig:knn_wo_pre} one can see that using the most attributes leads to the best performance which holds true for the other Classifiers as well. Interesting to note here, is that the best recall values were achieved when using k = 1 and thus only looking at the closest neighbour. 
 
 \begin{figure}
 \begin{floatrow}
 \ffigbox[\FBwidth][][]{\caption{Without Scaling (metric: Manhattan, weights: Uniform)}}
-    {\includegraphics[width=6cm]{onlineshop/plots/knn_wo_preprocessing.png}\label{fig:knn_wo_pre}}
+    {\includegraphics[width=6cm]{plots/knn_wo_preprocessing.png}\label{fig:knn_wo_pre}}
 \ffigbox[\FBwidth][][]{\caption{With MinMax Scaling (metric: Uniform, Top 12 Attributes)}}
-    {\includegraphics[width=6cm]{onlineshop/plots/knn_uniform_metric_comparison.png}\label{fig:knn_w_pre}}
+    {\includegraphics[width=6cm]{plots/knn_uniform_metric_comparison.png}\label{fig:knn_w_pre}}
 \end{floatrow}
 \end{figure}
-
-As can be seen in \secref{fig:knn_w_pre} scaling the data leads to a best case improvement of around 0.07 compared to the unscaled data which only increases with increasing k. Another thing that scaling the data does, is reducing the overall decrease of the recall with changing k. This figure also shows that the euclidean and manhattan metric perform very similar for this dataset while the chebyshev performs slightly worse. \\
+A general analysis beforehand showed that, while different weight parameters change how the recall values react to different k's, with \textit{uniform} being more sensitive compared to  \textit{distance}, they do not change the best achievable values.\\
 \newline
-A general analysis beforehand showed that, while different weight parameters change how the recall values react to different k's, with \textit{uniform} being more sensitive compared to  \textit{distance}, they do not change the best achievable values.
+As can be seen in \secref{fig:knn_w_pre} scaling the data leads to a best case improvement of around 0.07 compared to the unscaled data. This effect increases with increasing k. Another thing that scaling the data does, is reducing the overall decrease of the recall with changing k. This figure also shows that the euclidean and manhattan metric perform very similar for this dataset while the chebyshev performs slightly worse. 
+
 \subsection{Random Forest Classifier}
 For Random Forest Classifier we have used GridSearchCV to try out a few different parameters like \textit{n\_estimators, max\_depth and the criterion}. \\
 \newline
@@ -97,12 +91,11 @@ By doing a few pre tests and comparing how the criterion affects the recall valu
 \begin{figure}
 \begin{floatrow}
 \ffigbox[\FBwidth][][]{\caption{Comparison of \textit{n\_estimators} for different \textit{max\_depth} values}}
-    {\includegraphics[width=6cm]{onlineshop/plots/rfc_n_estimators_comparison.png}\label{fig:rf_n_estim}}
+    {\includegraphics[width=6cm]{plots/rfc_n_estimators_comparison.png}\label{fig:rf_n_estim}}
 \ffigbox[\FBwidth][][]{\caption{Scaling vs No Scaling comparison (100 Trees)}}
-    {\includegraphics[width=6cm]{onlineshop/plots/rfc_preprocessing_comparison.png}\label{fig:rfc_pre}}
+    {\includegraphics[width=6cm]{plots/rfc_preprocessing_comparison.png}\label{fig:rfc_pre}}
 \end{floatrow}
 \end{figure}
-
 Looking at the different n\_estimators in \secref{fig:rf_n_estim} we can see that a higher n\_estimators makes up for the overfitting which will be achieved by having a too high max\_depth value. This makes sense as the amount of trees within a forest is a good way to control overfitting. On the other hand after a certain point it makes no difference if there are 100 or 300 trees. \\
 \newline
 As trees are very robust and thus do not need Preprocessing most of the time, applying a MinMaxScaler to our data actually led to worse values which is visualized in \secref{fig:rfc_pre}.
@@ -114,13 +107,13 @@ Finally, taking a look at the more sophisticated Multi-Layer Perceptron, we have
 \begin{figure}
 \begin{floatrow}
 \ffigbox[\FBwidth][][]{\caption{Comparison of different \textit{hidden\_layer\_sizes} with stochastic gradient descent optimizer}}
-    {\includegraphics[width=6cm]{onlineshop/plots/mlp_solver_comparisonsgd.png}\label{fig:mlp_sgd}}
+    {\includegraphics[width=6cm]{plots/mlp_solver_comparisonsgd.png}\label{fig:mlp_sgd}}
 \ffigbox[\FBwidth][][]{\caption{Comparison of different \textit{hidden\_layer\_sizes} with adam optimizer}}
-    {\includegraphics[width=6cm]{onlineshop/plots/mlp_solver_comparisonadam.png}\label{fig:mlp_adam}}
+    {\includegraphics[width=6cm]{plots/mlp_solver_comparisonadam.png}\label{fig:mlp_adam}}
 \end{floatrow}
 \end{figure}
-As can be seen in \secref{fig:mlp_sgd}, using the wrong weight optimizer (stochastic gradient descent in this case) leads to much worse recall scores, with some of them even being zero (no True Positives predicted). Using the stochastic gradient descent version adam (by Kingma, Diederik, and Jimmy Ba) we were able to achieve much better and more consistent scores.
-
+As can be seen in \secref{fig:mlp_sgd}, using the wrong weight optimizer (stochastic gradient descent in this case) leads to much worse recall scores, with some of them even being zero (no True Positives predicted). Using the stochastic gradient descent version adam (by Kingma, Diederik, and Jimmy Ba) we were able to achieve much better and more consistent scores.\\
+\newline
 On the other hand the difference between having a constant learning rate of 0.001 and an adaptive one (divide learning rate by 5 if the training loss does not decrease for 2 consecutive epochs) was negligible, with the adaptive one being only 0.02 better in the best case. The same goes for different alpha values. \\
 \newline
 What can be observed is that using tangens hyperbolicus and Relu provides far better results no matter the layer sizes. The identity function performed much worse, achieving only a recall score of around 0.4 while the others were able to achieve scores of above 0.6 for at least one parameter setting. On the other hand, while the logistic activation function even was able to achieve a better score than the tangens hyperbolicus (hidden layer sizes (3,4,3)), it performed much worse in a few settings (hidden layer sizes (7, 3, 5, 5, 10) or (15, 30, 15)) whereas the others stayed consistent. \\
@@ -151,8 +144,8 @@ MLPClassifier          & \textbf{0.6750}        & 0.6106           \\ \hline
 \end{table}
 
 \subsubsection{Holdout vs Cross Validation}
-The cross validation results are the best ones achieved during the GridSearch parameter iteration, hence they are the same ones as the ones as in the table of the previous section (Preprocessing values for KNeighborsClassifier and MLPClassifier, No-Preprocessing for RandomForestClassifier). To calculate the Holdout score we used the best\_estimator of the respective Classifier and then fit the data on that estimator. 
-By comparing the achieved holdout and cross validation values we can see that the holdout method sometimes leads to better results and sometimes to worse. This is a possibility since the training split is randomly chosen, which plays a big part in how the data will be tested. In these particular cases Holdout led to only marginally better results for KNeighborsClassifier and RandomForestClassifier, while MLPClassifier was a lot better while using Cross Validation. 
+The cross validation results are the best ones achieved during the GridSearch parameter iteration, hence they are the same ones as the ones as in the table of the previous section (Preprocessing values for KNeighborsClassifier and MLPClassifier, No-Preprocessing for RandomForestClassifier). To calculate the Holdout score we used the best parameters of the respective Classifier and then fit the data on that estimator. 
+By comparing the achieved holdout and cross validation values we can see that the holdout method sometimes leads to better results and sometimes to worse. This is a possibility since the training split is randomly chosen, which plays a big part in how the data will be tested. In these particular cases Holdout led to only marginally better results for KNeighborsClassifier and RandomForestClassifier, while MLPClassifier was surprisingly a lot better while using Cross Validation. 
 
 \begin{table}[h]
 \begin{center}
@@ -203,39 +196,26 @@ To answer the question, which Classifier performs best for this dataset, we need
 If we only care about the accuracy score and need to get results fast, the best option would be the K Neighbors Classifier as it performs a lot better in regards to runtime and is comparable in terms of accuracy.\\
 Comparing the Random Forest Classifier and the MLP Classifier we can see that there is a draw in terms of Accuracy and F1 since the differences between the two classifiers are negligible. If we say that a high precision, i.e. there is a higher cost of falsely identifying Positives, and a faster runtime are more important, then the Random Forest Classifier would be the best choice.\\
 Since we defined that recall is our most important metric (the opportunity costs of passing up on a buying candidate are high) the MLP Classifier is the best one for this particular dataset.
-
 \newpage
+% _________________________OVERALL CONCLUSION____________________________________________
 \section{Overall Conclusion}
-In this section we will analyse how useful the chosen classifiers are in regards to our specific datasets and how they compare to each other. \\
+In this section we will summarize and analyse how useful the chosen classifiers are in regards to our specific datasets and how they compare to each other. \\
 \newline
-First of all it needs to be mentioned that the specific datasets pose different classification tasks as we have got 2 binary classifications (Online Shopping Predictions, Breast Cancer) and 2 Multiclass classifications (Iris, Amazon). Thus a direct comparison must be taken with a grain of salt, as having multiple classes adds another layer of complexity. 
-
-Interesting to note here is that even the least sophisticated classifier, K Neighbors, was able to achieve 98 percent in every above mentioned performance metric for the Iris and Breast Cancer dataset. As seen in the previous plots, this can be explained by the good distinguishability of the specific features and allows the k Neighbors algorithm to look at the closest datapoints which are in the same baskets/classes. 
+First of all it needs to be mentioned that the specific datasets pose different classification tasks as we have got 2 binary classifications (Online Shopping Predictions, Breast Cancer) and 2 Multiclass classifications (Iris, Amazon). Thus a direct comparison must be taken with a grain of salt, as having multiple classes adds another layer of complexity. \\
+\newline
+Looking at \secref{tab:summ} it is interesting to note that even the least sophisticated classifier, K Neighbors, was able to achieve 98 percent in every above mentioned performance metric for the Iris and Breast Cancer dataset. As seen in the previous plots, this can be explained by the good distinguishability of the specific features and allows the k Neighbors algorithm to look at the closest datapoints which are in the same baskets/classes. \\
 Comparing K Neighbors  to the Random Forest Classifier, we see that more complexity does not have to lead to better results. For these 2 datasets the Random Forest Classifier actually performed marginally worse for every metric and on top of that took a lot longer relatively to fit. The Random Forest Classifier still is a good model as it performed very similar to K neighbors for these datasets. For the more complex datasets (Online Shopping Predictions, Amazon) it achieved much better scores than the K Neighbors Classifier and even had the highest accuracy and precision score for the Online Shopping Predictions dataset. \\
 \newline
 A slight trend/observation can be made out for the different classifiers: 
 \begin{itemize}
-    \item The K Neighbors Classifier performs best for simpler datasets where the features are more distinguishable.
+    \item The K Neighbors Classifier performs well for simpler datasets, where the features are more distinguishable.
     \item Random Forest and MLP Classifier seem to perform well for simple and more complex datasets.
     \item The MLP Classifier performs better than the others when the underlying structure to be learned is more sophisticated.
 \end{itemize} 
-Concerning the question about which classifiers prove useful, one needs to define a threshold for when we say that a model is applicable for real world use. For the Iris and Breast Cancer dataset the choice of classifier does not make too much difference, especially considering the fact that we only have a few datapoints and a few more could skew the scores for one classifier or the other. \\
-For the Online Shopping Predictions one could say that the Random Forest Classifier's results are good enough if one is only interested in the accuracy and the precision score. This could be the case if we say that the cost of false positives is high, for example if we'd send out expensive gifts for every potential buyer. Considering the fact that this model will most likely be used to do some form of marketing it is more plausible that we care more about the cost of false negatives, i.e. potentially losing customers. Thus for the Online Shopping Predictions dataset either a Random Forest or a MLP Classifier could be applicable if one deems the achieved scores acceptable. \\
-Regarding the Amazon dataset it is clear that the MLP Classifier performs best at it achieves scores which are 10 percent higher (for every metric) than the Random Forest Classifier and takes less than a fifth of the time to fit.
+Concerning the question about which classifiers prove useful, one needs to define a threshold for when we say that a model is applicable for real world use. For the Iris and Breast Cancer dataset the choice of classifier does not make too much of a difference, especially considering the fact that we only have a few datapoints and a few more could skew the scores for one classifier or the other. \\
+For the Online Shopping Predictions one could say that the Random Forest Classifier's results are good enough if one is only interested in the accuracy and the precision score. This could be the case if we say that the cost of false positives is high, for example if we'd send out expensive gifts for every potential buyer. Considering the fact that this model will most likely be used to do some form of marketing it is more plausible that we care more about the cost of false negatives, i.e. potentially losing customers. Thus for the Online Shopping Predictions dataset either a Random Forest or, more likely, the MLP Classifier could be applicable if one deems the achieved scores acceptable. \\
+Regarding the Amazon dataset it is clear that the MLP Classifier performs best at it achieves scores which are 10 percent higher (for every metric) than the Random Forest Classifier and takes less than a fifth of the time to fit. Nevertheless, as even the best classifiers for Online Shopping Predictions and the Amazon dataset seem do not seem to have non substential error rates, one needs to take the model's real world applicability with a grain of salt. \\
 \newline
-% allgemein Parameter TODO
-Are the Classifiers Sensitive to parameter changes? 
-We have found that generally a higher amount of n\_estimators, i.e. trees, leads to a better performance. This can be explained by the fact that many trees help to create an average which does not overfit to certain scenarios.
-
-
-%TODO Preprocessing vs No-Preprocessing General Tabelle
-Comparing the effects of Preprocessing, we see that the K Neighbors and MLP Classifier seemed to generally benefit the most from Scaling (excluding Iris since it only has a few features) while it did not have too much of of an impact on the Random Forest Classifier and even lead to a worse score for the Online Shopping Predictions dataset.
-
-Another thing to keep in mind is that 
-
-While the amount of samples played a big role in the runtimes of the different classifiers, the amount of selected features had the biggest impact. Obviously the number of samples affects how long/often the model needs to be trained and updated (MLP), but the number of features affect how long it takes to calculate the comparisons to the other datasets and how long one update cycle is.
-
-% increasing the amount of samples by a factor of 100 lead to a runtime increase of ... . Adding onto that going from ~10 features to over a thousand increased the runtimes of around ...
 
 \begin{table}
 \begin{center}
@@ -249,6 +229,26 @@ Iris                                                                  & 0.98   &
 Breast Cancer                                                         & 0.99   & 0.99    & 0.98 & 0.98 & 0.0016     & 0.98   & 0.98    & 0.97 & 0.97 & 0.0677      & 0.99   & 0.99    & 0.99 & 0.98 & 0.8999    \\ \hline
 Amazon                                                                & 0.43 & 0.38 & 0.44 & 0.38 & 30.9870  & 0.59 & 0.54 & 0.59 & 0.54 & 481.1520 &  0.70 & 0.66 & 0.69 & 0.65 & 87.9900     \\ \hline
 \end{tabular}
+\caption{Performance Metrics and Runtime Summary} 
+\label{tab:summ}
 \end{adjustwidth}
 \end{center}
 \end{table}
+\subsubsection{Parameter Sensitivity}
+Analysing the sensitivity of the classifiers in regards to parameter changes, we have found that simply changing one parameter sometimes could completely turn the result into another direction. This was especially observable for the MLP Classifier where simply choosing adam as the optimizer instead of the regular stochastic gradient descent turned a recall score from 0.2 to 0.675 (see \secref{fig:mlp_sgd} and \secref{fig:mlp_adam}). On top of that the MLP was very sensitive in regards to the activation function with tangens hyperbolicus generally providing the best results and the logistic activation function generally performing the worst.\\
+We have found that a higher amount of n\_estimators, i.e. trees, usually leads to a better performance up to a certain point. This can be explained by the fact that many trees help to create an average which does not overfit to certain scenarios.\\
+In regards to K Neighbors we have seen that we tend to get the best results with Euclidean and Manhattan as the distance metric.  
+Another thing that could be observed for the K Neighbors Classifier, was that preprocessing the data in general also lead to an increase of k, since with the scaled ranges  more datapoints could now be considered. \\
+\newline
+%TODO Preprocessing vs No-Preprocessing General Tabelle
+\subsubsection{Preprocessing Effects}
+Comparing the effects of Preprocessing, we see that the K Neighbors and MLP Classifier seemed to generally benefit the most from Scaling (excluding Iris since it only has a few features) while it did not have too much of of an impact on the Random Forest Classifier and even lead to a worse score for the Online Shopping Predictions dataset. For the Iris dataset, preprocessing lead to a decrease in performance for the K Neighbors Classifier and the MLP Classifier.
+
+\subsubsection{Runtime}
+While the amount of samples played a big role in the runtimes of the different classifiers, the amount of selected features had the biggest impact. Obviously the number of samples affects how long/often the model needs to be trained and updated (MLP), but the number of features affect how long it takes to calculate the comparisons to the other datasets and how long one 'calculation cycle' is. Iris and Breast Cancer which contained a similar amount of samples/features and also had very similar scores also seemed to  have pretty much the exact same fitting times. Increasing the samplesize to around 12.000 (Online Shopping with around 40 times more samples than Breast Cancer's 300) led to a runtime increase by a factor of 30 for K Neighbors, 15 for Random Forest and 5 for MLP.\\ On the other hand increasing the feature amount by a factor of 100 (we selected over a thousand features for the Amazon dataset and only around 15 for Breast Cancer) we saw a runtime increase by a factor of 20.000 for K Neighbors, 7.000 for Random Forest and 100 for MLP (MLP: less features or else it would take too long). 
+Comparing the high number of samples of the Online Shopping Predictions Dataset with the high number of features of the Amazon dataset runtime ratios of 700, 450 and 20 can be noted. Thus it seems that the runtime of K Neighbors seemed to be affected the most by an increase of samples/features, followed by Random Forest and then MLP. \\
+\newline
+Except for the Amazon dataset, where we achieved the best results with only a high amount of features, the MLP took around $c*10^1$ times longer to fit than the Random Forest Classifier and around $c* 10^2$ times longer than the K Neighbors Classifier.\\
+Observing the Amazon Dataset we see that the ratio of $c*10^1$ seems to hold true if we compare Random Forest to K Neighbors Classifier. The runtime ratio MLP to Random Forest did not scale as it did for the other datasets and MLP was even faster than Random Forest, which could be explained by the parameter choice in the best case scenarios. \\
+Another thing to keep in mind is that the parameters have got a huge influence on the runtimes. Increasing the amount of neighbors/amount of trees \& max depths/amount of iterations \& neurons for the respective classifiers also lead to an increase in runtimes.
+
